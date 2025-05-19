@@ -1,0 +1,48 @@
+/* src/components/Navbar.css */
+
+.navbar {
+  background: rgba(20, 20, 20, 0.7);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+.navbar.MuiAppBar-root {
+  background: rgba(20, 20, 20, 0.7) !important;
+  backdrop-filter: blur(10px) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+.navbar.MuiTypography-root {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-weight: bold;
+  color: white !important;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 1rem;
+}
+
+.logo {
+  font-family: 'Helvetica Neue', sans-serif;
+  font-weight: bold;
+  color: white;
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  gap: 1rem;
+}
+
+.nav-btn {
+  color: white;
+  text-transform: none;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.nav-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+}
