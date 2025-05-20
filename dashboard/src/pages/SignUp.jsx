@@ -1,14 +1,8 @@
+// SignUp.js
 import React, { useState } from 'react';
 import {
-  Container,
-  Typography,
-  TextField,
-  Button,
-  Box,
-  Alert,
-  Link as MuiLink,
+  Container, Typography, TextField, Button, Box, Alert, Link as MuiLink
 } from '@mui/material';
-
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { registerUser } from '../api/userApi';
 
@@ -34,77 +28,29 @@ const SignUp = () => {
 
     try {
       await registerUser({ name, email, password });
-      setLoading(false);
-      navigate('/login'); // Redirect to login after signup
+      navigate('/login');
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to register');
+      setError(err.response?.data?.message || 'Registration failed');
+    } finally {
       setLoading(false);
     }
   };
 
   return (
     <Container maxWidth="xs" sx={{ mt: 8 }}>
-      <Typography variant="h4" component="h1" gutterBottom align="center">
-        Sign Up
-      </Typography>
-
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-      )}
-
-      <Box component="form" onSubmit={handleSubmit} noValidate>
-        <TextField
-          label="Name"
-          variant="outlined"
-          fullWidth
-          margin="normal"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
-
-        <TextField
-          label="Email"
-          variant="outlined"
-          fullWidth
-          margin="normal"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-
-        <TextField
-          label="Password"
-          variant="outlined"
-          fullWidth
-          margin="normal"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-
-        <Button
-          type="submit"
-          variant="contained"
-          fullWidth
-          color="primary"
-          disabled={loading}
-          sx={{ mt: 3, mb: 2 }}
-        >
+      <Typography variant="h4" gutterBottom align="center">Sign Up</Typography>
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      <Box component="form" onSubmit={handleSubmit}>
+        <TextField label="Name" fullWidth margin="normal" value={name} onChange={(e) => setName(e.target.value)} required />
+        <TextField label="Email" type="email" fullWidth margin="normal" value={email} onChange={(e) => setEmail(e.target.value)} required />
+        <TextField label="Password" type="password" fullWidth margin="normal" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }} disabled={loading}>
           {loading ? 'Signing up...' : 'Sign Up'}
         </Button>
+        <Typography variant="body2" align="center">
+          Already have an account? <MuiLink component={RouterLink} to="/login">Login</MuiLink>
+        </Typography>
       </Box>
-
-      <Typography variant="body2" align="center">
-        Already have an account?{' '}
-        <MuiLink component={RouterLink} to="/login" underline="hover">
-          Login
-        </MuiLink>
-      </Typography>
     </Container>
   );
 };

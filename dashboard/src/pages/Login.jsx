@@ -11,6 +11,8 @@ import {
 
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { loginUser } from '../api/userApi';
+import { useAuth } from '../context/AuthContext'; 
+
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -19,6 +21,8 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+  
+   const { login } = useAuth(); // ✅ Use login() from context
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -32,12 +36,11 @@ const Login = () => {
     }
 
     try {
-      await loginUser({ email, password });
-
-      // Save token/auth state here if needed
+      const token = await loginUser({ email, password }); // get token from API
+      login(token); // ✅ Update auth context
 
       setLoading(false);
-      navigate('/'); // Redirect to home after login
+      navigate('/'); // ✅ Now this will work as expected
     } catch (err) {
       setError('Invalid email or password');
       setLoading(false);

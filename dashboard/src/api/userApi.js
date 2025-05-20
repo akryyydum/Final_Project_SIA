@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const USER_API_BASE = 'http://localhost:5000/api/users';
+const USER_API_BASE = 'http://localhost:5000/api/auth';
 
 export const loginUser = ({ email, password }) =>
   axios.post(`${USER_API_BASE}/login`, { email, password });

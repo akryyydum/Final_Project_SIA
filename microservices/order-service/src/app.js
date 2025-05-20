@@ -14,7 +14,7 @@ app.use(express.json());
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('User service connected to MongoDB'))
   .catch(err => console.error(err));
-
+  
 app.use('/api/users', userRoutes);
 
 module.exports = app;
