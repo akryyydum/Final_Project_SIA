@@ -55,9 +55,6 @@ This platform demonstrates a modular architecture, where each core feature is im
 
 ## 🚀 Getting Started
 
-### 1️⃣ Clone the Repository
-
-```bash
 git clone https://github.com/your-username/your-repo-name.git
 cd your-repo-name
 
@@ -95,7 +92,7 @@ Cart Service	http://localhost:5003
 Order Service	http://localhost:5002
 RabbitMQ Manager	http://localhost:15672
 
-🧪 RabbitMQ Login: guest / guest
+🧪 RabbitMQ Login: guest st
 
 🔐 Default Admin Credentials
 Email	Password
