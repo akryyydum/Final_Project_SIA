@@ -1,4 +1,5 @@
-const { connect } = require('../../../rabbitmq/connection');
+// filepath: microservices/product-service/src/services/orderConsumer.js
+const { connect } = require('../utils/connection');
 const Product = require('../models/Product');
 
 async function listenOrderEvents() {
