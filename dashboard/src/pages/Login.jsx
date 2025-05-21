@@ -35,19 +35,17 @@ const Login = () => {
       return;
     }
 
-    // ...existing code...
-try {
-  const res = await loginUser({ email, password }); // Axios response
-  login(res.data.token); // <-- Save only the token string!
-  setLoading(false);
-  navigate('/');
-} catch (err) {
+    try {
+      const token = await loginUser({ email, password }); // get token from API
+      login(token); // ✅ Update auth context
+
+      setLoading(false);
+      navigate('/'); // ✅ Now this will work as expected
+    } catch {
   setError('Invalid email or password');
   setLoading(false);
 }
-// ...existing code...
   };
-
   return (
     <Container maxWidth="xs" sx={{ mt: 8 }}>
       <Typography variant="h4" component="h1" gutterBottom align="center">
