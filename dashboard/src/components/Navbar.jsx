@@ -150,7 +150,7 @@ const Navbar = () => {
             </>
           )}
         </div>
-
+        <p>Hello</p>
         {/* Profile Icon and Menu */}
         <IconButton
           edge="end"
