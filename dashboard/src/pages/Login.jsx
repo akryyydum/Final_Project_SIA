@@ -41,12 +41,11 @@ const Login = () => {
 
       setLoading(false);
       navigate('/'); // ✅ Now this will work as expected
-    } catch (err) {
-      setError('Invalid email or password');
-      setLoading(false);
-    }
+    } catch {
+  setError('Invalid email or password');
+  setLoading(false);
+}
   };
-
   return (
     <Container maxWidth="xs" sx={{ mt: 8 }}>
       <Typography variant="h4" component="h1" gutterBottom align="center">
