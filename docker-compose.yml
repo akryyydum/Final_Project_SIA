@@ -29,6 +29,18 @@ services:
     volumes:
       - mongo-product-data:/data/db
 
+  product-service:
+    build:
+      context: ./microservices/product-service
+    container_name: product-service
+    ports:
+      - "4000:4000"
+    environment:
+      - PORT=4000
+      - MONGO_URI=mongodb://mongo-product:27017/products
+    depends_on:
+      - mongo-product
+
   mongo-cart:
     image: mongo
     container_name: mongo-cart
