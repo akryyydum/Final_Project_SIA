@@ -12,7 +12,6 @@ import {
 } from '@mui/material';
 import { Link } from 'react-router-dom';
 import AccountCircle from '@mui/icons-material/AccountCircle';
-
 import HomeIcon from '@mui/icons-material/Home';
 import StorefrontIcon from '@mui/icons-material/Storefront';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
@@ -29,17 +28,10 @@ const Navbar = () => {
   };
 
   return (
-    <AppBar
-      position="static"
-      sx={{
-        backgroundColor: 'rgba(20, 20, 20, 0.7)',
-        backdropFilter: 'blur(10px)',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
-      }}
-    >
+    <AppBar position="fixed" className="navbar">
       <Toolbar className="toolbar">
-        <Typography variant="h5" className="logo" component={Link} to="/">
-           AetherTech
+        <Typography variant="h6" className="logo" component={Link} to="/">
+          AetherTech
         </Typography>
         <div className="nav-links">
           <Tooltip title="Home">
@@ -48,7 +40,6 @@ const Navbar = () => {
               component={Link}
               to="/"
               aria-label="Home"
-              size="large"
             >
               <HomeIcon />
             </IconButton>
@@ -59,7 +50,6 @@ const Navbar = () => {
               component={Link}
               to="/products"
               aria-label="Products"
-              size="large"
             >
               <StorefrontIcon />
             </IconButton>
@@ -70,18 +60,16 @@ const Navbar = () => {
               component={Link}
               to="/checkout"
               aria-label="Checkout"
-              size="large"
             >
               <ShoppingCartIcon />
             </IconButton>
           </Tooltip>
         </div>
         <IconButton
-          size="large"
           edge="end"
           color="inherit"
           onClick={handleMenu}
-          aria-label="account menu"
+          aria-label="account"
         >
           <AccountCircle />
         </IconButton>
