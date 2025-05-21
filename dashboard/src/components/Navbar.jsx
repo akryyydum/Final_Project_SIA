@@ -66,61 +66,26 @@ const Navbar = () => {
           AetherTech
         </Typography>
 
-        {/* User name and role (optional UI) */}
-        {isAuthenticated && (
+        {/* Show user name and role */}
+        {isAuthenticated && name && role && (
           <Typography variant="body1" sx={{ color: 'white', marginRight: 2 }}>
             {name} ({role})
           </Typography>
         )}
 
         <div className="nav-links" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Tooltip title="Home">
-            <IconButton
-              color="inherit"
-              component={Link}
-              to="/"
-              aria-label="Home"
-            >
-              <HomeIcon />
-            </IconButton>
-          </Tooltip>
-
-          {/* ADMIN NAVIGATION */}
-          {isAuthenticated && role === 'admin' && (
-            <>
-              <Tooltip title="View Users">
-                <IconButton
-                  color="inherit"
-                  component={Link}
-                  to="/users"
-                  aria-label="Users"
-                >
-                  <GroupIcon />
-                </IconButton>
-              </Tooltip>
-
-              <Tooltip title="Add Product">
-                <IconButton
-                  color="inherit"
-                  component={Link}
-                  to="/admin/add-product"
-                  aria-label="Add Product"
-                >
-                  <AddBoxIcon />
-                </IconButton>
-              </Tooltip>
-
-              <Tooltip title="Checkout List">
-                <IconButton
-                  color="inherit"
-                  component={Link}
-                  to="/checkout-list"
-                  aria-label="Checkout List"
-                >
-                  <ShoppingCartIcon />
-                </IconButton>
-              </Tooltip>
-            </>
+          {/* Show Home for all authenticated users */}
+          {isAuthenticated && (
+            <Tooltip title="Home">
+              <IconButton
+                color="inherit"
+                component={Link}
+                to="/"
+                aria-label="Home"
+              >
+                <HomeIcon />
+              </IconButton>
+            </Tooltip>
           )}
 
           {/* CUSTOMER NAVIGATION */}
@@ -136,13 +101,48 @@ const Navbar = () => {
                   <StorefrontIcon />
                 </IconButton>
               </Tooltip>
-
               <Tooltip title="Cart">
                 <IconButton
                   color="inherit"
                   component={Link}
                   to="/cart"
                   aria-label="Cart"
+                >
+                  <ShoppingCartIcon />
+                </IconButton>
+              </Tooltip>
+            </>
+          )}
+
+          {/* ADMIN NAVIGATION */}
+          {isAuthenticated && role === 'admin' && (
+            <>
+              <Tooltip title="View Users">
+                <IconButton
+                  color="inherit"
+                  component={Link}
+                  to="/users"
+                  aria-label="Users"
+                >
+                  <GroupIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Add Product">
+                <IconButton
+                  color="inherit"
+                  component={Link}
+                  to="/admin/add-product"
+                  aria-label="Add Product"
+                >
+                  <AddBoxIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Placed Orders">
+                <IconButton
+                  color="inherit"
+                  component={Link}
+                  to="/checkout-list"
+                  aria-label="Placed Orders"
                 >
                   <ShoppingCartIcon />
                 </IconButton>
@@ -162,7 +162,7 @@ const Navbar = () => {
         </IconButton>
 
         <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
-          {isAuthenticated && (
+          {isAuthenticated && name && role && (
             <MenuItem disabled>
               {name} ({role})
             </MenuItem>
