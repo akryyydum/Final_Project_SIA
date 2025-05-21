@@ -58,7 +58,7 @@ This platform demonstrates a modular architecture, where each core feature is im
 git clone https://github.com/your-username/your-repo-name.git
 cd your-repo-name
 
-2️⃣ Set Up Environment Variables
+## 2️⃣ Set Up Environment Variables
 Each service contains its own .env file.
 
 Example for user-service/.env:
@@ -77,14 +77,14 @@ PORT
 
 JWT_SECRET
 
-3️⃣ Build and Start with Docker Compose
+ ##3️⃣ Build and Start with Docker Compose
 bash
 Copy
 Edit
 docker-compose up --build
 This launches all services, MongoDB instances, and RabbitMQ in isolated containers.
 
-🌐 Service Endpoints
+##🌐 Service Endpoints
 Service	URL
 User Service	http://localhost:5000
 Product Service	http://localhost:4000
@@ -92,13 +92,13 @@ Cart Service	http://localhost:5003
 Order Service	http://localhost:5002
 RabbitMQ Manager	http://localhost:15672
 
-🧪 RabbitMQ Login: guest st
+##🧪 RabbitMQ Login: guest st
 
-🔐 Default Admin Credentials
+## 🔐 Default Admin Credentials
 Email	Password
 Admin@admin.com	Admin
 
-🧪 API Testing
+## 🧪 API Testing
 Use Postman or similar tools to:
 
 Register or log in users
@@ -109,13 +109,13 @@ Manage cart & place orders (customer)
 
 View all orders (admin)
 
-🛑 Stopping All Services
+## 🛑 Stopping All Services
 bash
 Copy
 Edit
 docker-compose down
-📄 License
+## 📄 License
 This project is licensed under the MIT License.
 
-🙌 Contributions
+## 🙌 Contributions
 Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
