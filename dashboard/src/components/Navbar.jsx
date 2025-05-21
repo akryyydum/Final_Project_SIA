@@ -34,7 +34,7 @@ const Navbar = () => {
       role = payload.role;
       name = payload.name;
     }
-  } catch (e) {
+  } catch  {
     role = null;
     name = null;
   }
