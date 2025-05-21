@@ -1,21 +1,43 @@
-const User = require('../models/User');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+const Cart = require('../models/Cart');
 
-exports.registerUser = async (req, res) => {
-  const { name, email, password } = req.body;
-  const hashedPassword = await bcrypt.hash(password, 10);
-  const user = new User({ name, email, password: hashedPassword });
-  await user.save();
-  res.status(201).send("User registered");
+exports.createCart = async (req, res) => {
+  try {
+    const cart = new Cart(req.body);
+    await cart.save();
+    res.status(201).json(cart);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
 };
 
-exports.loginUser = async (req, res) => {
-  const { email, password } = req.body;
-  const user = await User.findOne({ email });
-  if (!user || !(await bcrypt.compare(password, user.password))) {
-    return res.status(401).send("Invalid credentials");
+exports.getCarts = async (req, res) => {
+  try {
+    const carts = await Cart.find();
+    res.json(carts);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
-  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
-  res.json({ token });
+};
+
+exports.updateCart = async (req, res) => {
+  try {
+    const cart = await Cart.findOneAndUpdate(
+      { userId: req.params.userId },
+      req.body,
+      { new: true, upsert: true }
+    );
+    res.json(cart);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.getCartByUser = async (req, res) => {
+  try {
+    const cart = await Cart.findOne({ userId: req.params.userId });
+    if (!cart) return res.status(404).json({ message: 'Cart not found' });
+    res.json(cart);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };

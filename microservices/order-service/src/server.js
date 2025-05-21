@@ -1,11 +1,8 @@
+require('dotenv').config();
 const app = require('./app');
-const mongoose = require('mongoose');
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 5002;
 
-mongoose.connect(process.env.MONGO_URI).then(() => {
-  console.log('Connected to MongoDB');
-  app.listen(PORT, () => {
-    console.log(`User Service running on port ${PORT}`);
-  });
+app.listen(PORT, () => {
+  console.log(`Order Service running on port ${PORT}`);
 });

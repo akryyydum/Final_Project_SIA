@@ -1,6 +1,16 @@
 // filepath: microservices/product-service/src/services/orderConsumer.js
 const { connect } = require('../utils/connection');
 const Product = require('../models/Product');
+require('dotenv').config();
+const app = require('./app');
+const listenOrderEvents = require('./services/orderConsumer');
+
+const PORT = process.env.PORT || 4000;
+
+app.listen(PORT, () => {
+  console.log(`Product Service running on port ${PORT}`);
+  listenOrderEvents(); // Start RabbitMQ consumer
+});
 
 async function listenOrderEvents() {
   const channel = await connect();

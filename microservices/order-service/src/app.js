@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
-const userRoutes = require('./routes/userRoutes');
+const orderRoutes = require('./routes/orderRoutes');
 
 dotenv.config();
 
@@ -12,9 +12,9 @@ app.use(cors());
 app.use(express.json());
 
 mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('User service connected to MongoDB'))
+  .then(() => console.log('Order service connected to MongoDB'))
   .catch(err => console.error(err));
-  
-app.use('/api/users', userRoutes);
+
+app.use('/api/orders', orderRoutes);
 
 module.exports = app;

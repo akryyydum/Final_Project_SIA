@@ -1,14 +1,15 @@
-// controllers/authController.js
+const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 exports.register = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, role } = req.body;
 
   try {
     const existing = await User.findOne({ email });
     if (existing) return res.status(400).json({ message: 'Email already in use' });
 
-    const user = new User({ name, email, password });
+    // Only allow role assignment if explicitly provided and is 'admin'
+    const user = new User({ name, email, password, role: role === 'admin' ? 'admin' : 'customer' });
     await user.save();
     res.status(201).json({ message: 'User registered successfully' });
   } catch (err) {
@@ -26,7 +27,20 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    res.status(200).json({ message: 'Login successful', userId: user._id, name: user.name });
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: user._id, role: user.role, name: user.name, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '1d' }
+    );
+
+    res.status(200).json({
+      message: 'Login successful',
+      userId: user._id,
+      name: user.name,
+      role: user.role,
+      token // <-- return the token here
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Login failed' });

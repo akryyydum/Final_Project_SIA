@@ -49,6 +49,18 @@ services:
     volumes:
       - mongo-cart-data:/data/db
 
+  cart-service:
+    build:
+      context: ./microservices/cart-service
+    container_name: cart-service
+    ports:
+      - "5003:5003"
+    environment:
+      - PORT=5003
+      - MONGO_URI=mongodb://mongo-cart:27017/carts
+    depends_on:
+      - mongo-cart
+
   mongo-order:
     image: mongo
     container_name: mongo-order
@@ -56,6 +68,18 @@ services:
       - "27020:27017"
     volumes:
       - mongo-order-data:/data/db
+
+  order-service:
+    build:
+      context: ./microservices/order-service
+    container_name: order-service
+    ports:
+      - "5002:5002"
+    environment:
+      - PORT=5002
+      - MONGO_URI=mongodb://mongo-order:27017/orders
+    depends_on:
+      - mongo-order
 
   rabbitmq:
     image: rabbitmq:3-management
