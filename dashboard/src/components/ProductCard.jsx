@@ -1,22 +1,48 @@
-import { Card, CardContent, CardMedia, Typography, Button } from "@mui/material";
+import React from "react";
+import "../components/ProductCard.css";
+import { useCart } from "../context/CartContext";
 
-export default function ProductCard({ product }) {
+const ProductCard = ({ _id, imageUrl, name, description, price, stock }) => {
+  const { addToCart } = useCart();
+
+  let imgSrc = "/assets/default.png";
+
+  if (imageUrl) {
+    if (imageUrl.startsWith("data:")) {
+      imgSrc = imageUrl;
+    } else {
+      imgSrc = `data:image/jpeg;base64,${imageUrl}`;
+    }
+  }
+
+  const handleAddToCart = () => {
+    // Pass the product object with _id for CartContext
+    addToCart({
+      _id,
+      name,
+      description,
+      price,
+      imageUrl,
+      stock,
+    });
+  };
+
   return (
-    <Card sx={{ maxWidth: 345 }}>
-      <CardMedia
-        component="img"
-        height="140"
-        image={product.image}
-        alt={product.name}
-      />
-      <CardContent>
-        <Typography variant="h6">{product.name}</Typography>
-        <Typography variant="body2" color="text.secondary">
-          {product.description}
-        </Typography>
-        <Typography variant="subtitle1">${product.price}</Typography>
-        <Button variant="contained" color="primary">Add to Cart</Button>
-      </CardContent>
-    </Card>
+    <div className="product-card">
+      <img src={imgSrc} alt={name} className="product-image" />
+      <h2>{name}</h2>
+      <p>{description}</p>
+      <p>Price: ${price}</p>
+      <p>Stock: {stock}</p>
+      <button
+        className="cart-icon-button"
+        onClick={handleAddToCart}
+        title="Add to Cart"
+      >
+        🛒
+      </button>
+    </div>
   );
-}
+};
+
+export default ProductCard;

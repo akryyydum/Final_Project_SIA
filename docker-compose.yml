@@ -1,10 +1,10 @@
-version: '3.8'
+
 services:
   mongo-user:
     image: mongo
     container_name: mongo-user
     ports:
-      - "27017:27017"
+      - "27021:27017" 
     volumes:
       - mongo-user-data:/data/db
 

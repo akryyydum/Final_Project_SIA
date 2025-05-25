@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Container,
   Typography,
@@ -13,54 +13,13 @@ import {
 } from '@mui/material';
 import { Add, Remove, Delete } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
 
 const Cart = () => {
   const navigate = useNavigate();
+  const { cartItems, increaseQty, decreaseQty, removeFromCart } = useCart();
 
-  // Mock data — replace with actual cart from backend
-  const [cartItems, setCartItems] = useState([
-    {
-      _id: '1',
-      name: 'iPhone 15 Pro',
-      price: 1299,
-      quantity: 1,
-      imageUrl: 'https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-15-pro',
-    },
-    {
-      _id: '2',
-      name: 'MacBook Air M2',
-      price: 1099,
-      quantity: 1,
-      imageUrl: 'https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/macbook-air-m2',
-    },
-  ]);
-
-  const handleIncrease = (id) => {
-    setCartItems((prev) =>
-      prev.map((item) =>
-        item._id === id ? { ...item, quantity: item.quantity + 1 } : item
-      )
-    );
-  };
-
-  const handleDecrease = (id) => {
-    setCartItems((prev) =>
-      prev.map((item) =>
-        item._id === id && item.quantity > 1
-          ? { ...item, quantity: item.quantity - 1 }
-          : item
-      )
-    );
-  };
-
-  const handleRemove = (id) => {
-    setCartItems((prev) => prev.filter((item) => item._id !== id));
-  };
-
-  const total = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (
     <Container sx={{ mt: 5 }}>
@@ -69,12 +28,12 @@ const Cart = () => {
       </Typography>
 
       {cartItems.length === 0 ? (
-        <Typography variant="body1">Your cart is empty.</Typography>
+        <Typography>Your cart is empty.</Typography>
       ) : (
         <>
           <Grid container spacing={2}>
-            {cartItems.map((item) => (
-              <Grid item xs={12} md={6} key={item._id}>
+            {cartItems.map((item, index) => (
+              <Grid xs={12} md={6} key={item.productId || item._id || index}>
                 <Card>
                   <CardContent>
                     <Box display="flex" gap={2}>
@@ -85,25 +44,24 @@ const Cart = () => {
                       />
                       <Box flex="1">
                         <Typography variant="h6">{item.name}</Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          ${item.price.toFixed(2)}
-                        </Typography>
+                        <Typography>${item.price.toFixed(2)}</Typography>
                       </Box>
                     </Box>
                   </CardContent>
-
                   <CardActions sx={{ justifyContent: 'space-between', px: 2 }}>
                     <Box display="flex" alignItems="center">
-                      <IconButton onClick={() => handleDecrease(item._id)}>
+                      <IconButton onClick={() => decreaseQty(item.productId || item._id)}>
                         <Remove />
                       </IconButton>
                       <Typography>{item.quantity}</Typography>
-                      <IconButton onClick={() => handleIncrease(item._id)}>
+                      <IconButton onClick={() => increaseQty(item.productId || item._id)}>
                         <Add />
                       </IconButton>
                     </Box>
-
-                    <IconButton onClick={() => handleRemove(item._id)} color="error">
+                    <IconButton
+                      onClick={() => removeFromCart(item.productId || item._id)}
+                      color="error"
+                    >
                       <Delete />
                     </IconButton>
                   </CardActions>
@@ -116,11 +74,7 @@ const Cart = () => {
 
           <Box display="flex" justifyContent="space-between" alignItems="center">
             <Typography variant="h6">Total: ${total.toFixed(2)}</Typography>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => navigate('/checkout')}
-            >
+            <Button variant="contained" color="primary" onClick={() => navigate('/checkout')}>
               Proceed to Checkout
             </Button>
           </Box>

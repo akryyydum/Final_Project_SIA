@@ -1,0 +1,16 @@
+.sidebar {
+  width: 250px;
+  margin-right: 1rem;
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.filter-group {
+  margin-bottom: 1rem;
+}
+
+.filter-group h4 {
+  margin-bottom: 0.5rem;
+}

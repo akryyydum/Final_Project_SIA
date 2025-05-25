@@ -1,0 +1,34 @@
+.app {
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: white;
+  padding: 1rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.search-bar {
+  width: 50%;
+  padding: 0.5rem;
+}
+
+.main-content {
+  display: flex;
+  padding: 1rem;
+}
+
+.product-area {
+  flex: 1;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}

@@ -1,50 +1,43 @@
 const express = require('express');
-const { createProduct } = require('../controllers/productController');
-const Product = require('../models/Product');
-const authenticate = require('../middleware/requireAdmin');
-const requireAdmin = require('../middleware/requireAdmin');
 const router = express.Router();
+const { authenticate, requireAdmin } = require('../middleware/requireAdmin');
+const Product = require('../models/Product');
 
-// Only admin can create
-router.post('/', authenticate, requireAdmin, createProduct);
-
-// Anyone can view products
-router.get('/', async (req, res) => {
+// GET all products
+router.get("/", async (req, res) => {
   try {
     const products = await Product.find();
     res.json(products);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: "Server error" });
   }
 });
 
-// Only admin can update
-router.put('/:id', authenticate, requireAdmin, async (req, res) => {
+// POST a new product
+router.post("/", requireAdmin, async (req, res) => {
+  console.log("POST /api/products hit");
   try {
-    const product = await Product.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
-    if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
-    }
-    res.json(product);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+    const { name, description, price, stock, imageUrl, categories, tags } = req.body;
 
-// Only admin can delete
-router.delete('/:id', authenticate, requireAdmin, async (req, res) => {
-  try {
-    const product = await Product.findByIdAndDelete(req.params.id);
-    if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
+    if (!name || !description || isNaN(price) || isNaN(stock)) {
+      return res.status(400).json({ message: "Missing or invalid product fields" });
     }
-    res.json({ message: 'Product deleted' });
+
+    const product = new Product({
+      name,
+      description,
+      price,
+      stock,
+      imageUrl,
+      categories,
+      tags
+    });
+
+    const savedProduct = await product.save();
+    res.status(201).json(savedProduct);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Error adding product:", err);
+    res.status(500).json({ message: "Server error" });
   }
 });
 

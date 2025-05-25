@@ -11,8 +11,7 @@ import {
 
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { loginUser } from '../api/userApi';
-import { useAuth } from '../context/AuthContext'; 
-
+import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -21,8 +20,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
-  
-   const { login } = useAuth(); // ✅ Use login() from context
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,17 +33,19 @@ const Login = () => {
       return;
     }
 
-    // ...existing code...
-try {
-  const res = await loginUser({ email, password }); // Axios response
-  login(res.data.token); // <-- Save only the token string!
-  setLoading(false);
-  navigate('/');
-} catch  {
-  setError('Invalid email or password');
-  setLoading(false);
-}
-// ...existing code...
+    try {
+      const res = await loginUser({ email, password }); // axios call
+      if (res.data && res.data.token) {
+        login(res.data.token);  // save token in context + localStorage
+        setLoading(false);
+        navigate('/'); // redirect on success
+      } else {
+        throw new Error('No token received');
+      }
+    } catch  {
+      setError('Invalid email or password');
+      setLoading(false);
+    }
   };
 
   return (
@@ -70,6 +70,7 @@ try {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
+          autoComplete="email"
         />
 
         <TextField
@@ -81,6 +82,7 @@ try {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
+          autoComplete="current-password"
         />
 
         <Button

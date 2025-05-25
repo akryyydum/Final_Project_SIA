@@ -34,7 +34,7 @@ const Navbar = () => {
       role = payload.role;
       name = payload.name;
     }
-  } catch (e) {
+  } catch  {
     role = null;
     name = null;
   }
@@ -95,7 +95,7 @@ const Navbar = () => {
                 <IconButton
                   color="inherit"
                   component={Link}
-                  to="/"
+                  to="/products" // Update the link to point to the products page
                   aria-label="Products"
                 >
                   <StorefrontIcon />
@@ -113,6 +113,7 @@ const Navbar = () => {
               </Tooltip>
             </>
           )}
+          
 
           {/* ADMIN NAVIGATION */}
           {isAuthenticated && role === 'admin' && (
