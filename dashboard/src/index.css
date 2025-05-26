@@ -1,3 +1,4 @@
-body{
-    font-family: 'Poppins', sans-serif !important; 
+body {
+    font-family: 'Poppins', sans-serif !important;
+    overflow-x: hidden;
 }

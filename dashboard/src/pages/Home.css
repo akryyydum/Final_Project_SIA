@@ -1,125 +1,213 @@
-.hero-section {
+.apple-home-wrapper {
+  background: #f5f5f7;
+  min-height: 100vh;
+  font-family: 'SF Pro Display', 'Poppins', Arial, sans-serif;
+  color: #1d1d1f;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+}
+
+/* Hero Section */
+.apple-hero {
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  background-color: whitesmoke;
-  position: relative;
-  flex-wrap: wrap;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  margin: 0;
-  z-index: -1;
-}
-
-.hero-text {
-  flex: 1 1 50%;
-  max-width: 600px;
-  padding: 1rem;
-  margin-left: 50px;
-}
-
-.hero-title {
-  font-size: 3.2rem;
-  font-weight: 800;
-  background: linear-gradient(to right, #000, #a100ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-bottom: 1rem;
-}
-
-.hero-subtitle {
-  font-size: 1.1rem;
-  color: #333;
-  margin-bottom: 1.5rem;
-  line-height: 1.6;
-}
-
-.hero-buttons {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.order-now-btn {
-  background-color: #000;
-  color: white;
-  padding: 10px 24px;
-  border-radius: 25px;
-  text-transform: none;
-  font-weight: 600;
-}
-
-.learn-more-btn {
-  text-transform: none;
-  font-weight: 500;
-}
-
-.brand-collab {
-  margin-top: 1rem;
-  color: #555;
-}
-
-.brands {
-  display: flex;
-  gap: 1rem;
-  margin-top: 0.5rem;
-}
-
-.brands img {
-  height: 30px;
-  opacity: 0.8;
-}
-
-.hero-image {
-  flex: 1 1 40%;
+  justify-content: center;
+  padding: 120px 20px 60px 20px;
+  background: linear-gradient(180deg, #fff 60%, #f5f5f7 100%);
   text-align: center;
-  margin-left: 70px;
+  animation: fadeIn 0.8s ease-in-out both;
 }
 
-.hero-image img {
-  max-width: 1550px;
-  width: 599px;
-  height: auto;
+.apple-hero-image {
+  max-width: 500px;
+  width: 100%;
+  margin-bottom: 28px;
+  filter: drop-shadow(0 8px 20px rgba(0,0,0,0.08));
+}
+
+.apple-hero-title {
+  font-size: 3.2rem !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.03em;
+  margin-bottom: 12px !important;
+  color: #1d1d1f;
+  font-family: 'SF Pro Display', 'Poppins', Arial, sans-serif !important;
+}
+
+.apple-hero-desc {
+  font-size: 1.4rem !important;
+  color: #86868b;
+  margin-bottom: 32px !important;
+  font-weight: 500 !important;
+}
+
+.apple-hero-btn {
+  background: #1a181d !important;
+  color: #fff !important;
+  border-radius: 980px !important;
+  font-size: 1.15rem !important;
+  font-weight: 600 !important;
+  padding: 12px 48px !important;
+  box-shadow: 0 4px 16px rgba(0,113,227,0.08);
+  border: none;
+  transition: background 0.2s;
+}
+.apple-hero-btn:hover, .apple-hero-btn:focus {
+  background: #86868b !important;
+  color: #fff !important;
+}
+
+/* Featured Section */
+.apple-featured-section {
+  background: #f5f5f7;
+  padding: 60px 0 40px 0;
+  display: flex;
+  justify-content: center;
+}
+
+.apple-featured-row {
+  display: flex;
+  gap: 32px;
+  justify-content: center;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 1200px;
+}
+
+.apple-featured-card {
+  border-radius: 24px !important;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+  background: #fff !important;
+  width: 340px;
+  min-height: 500px;
+  transition: box-shadow 0.2s, transform 0.2s;
+  cursor: pointer;
+  animation: fadeIn 1s ease-in-out both;
+}
+.apple-featured-card:hover {
+  box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+  transform: translateY(-6px) scale(1.03);
+}
+.apple-featured-buy-btn {
+  background-color: #1a181d !important;
+  color: #fff !important;
+  border: none !important;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.apple-featured-buy-btn:hover,
+.apple-featured-buy-btn:focus {
+  background-color: #86868b !important;
+  color: #fff !important;
+}
+  
+.apple-featured-img {
+  width: 100%;
+  height: 240px;
   object-fit: contain;
+  background: #f5f5f7;
+  border-radius: 24px 24px 0 0;
+  margin-bottom: 0;
+  transition: opacity 0.8s ease-in-out;
 }
 
-.product-card {
-  transition: transform 0.3s ease;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+.apple-featured-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1d1d1f;
 }
 
-.product-card:hover {
-  transform: translateY(-5px);
-}
-
-.product-image {
-  height: 200px;
-  object-fit: contain;
-  padding: 1rem;
-  background-color: #fafafa;
-}
-
-.product-title {
-  font-weight: 600;
-  color: #111;
-}
-
-.product-price {
+.apple-featured-desc {
+  color: #86868b;
   font-size: 1rem;
-  color: #444;
-  margin-bottom: 10px;
+  margin-top: 6px;
 }
 
-.view-details-button {
-  margin-left: auto;
-  margin-right: auto;
-  background-color: #000;
-  color: #fff;
-  border-radius: 20px;
-  font-weight: 500;
-  text-transform: none;
+/* About & Contact */
+.apple-about-contact {
+  max-width: 1500px; /* Extended from 1100px */
+  width: 100%;
+  margin: 0 auto;
+  padding: 60px 40px 40px 40px; /* More spacious on larger screens */
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.04);
+  margin-bottom: 40px;
+  animation: fadeIn 1s ease-in-out both;
 }
+
+.fade-transition {
+  transition: opacity 0.8s ease-in-out;
+}
+
+.apple-about-title {
+  font-weight: 700;
+  color: #1d1d1f;
+}
+
+.apple-about-text {
+  color: #515154;
+  font-size: 1.08rem;
+  margin-bottom: 0.8rem;
+}
+
+/* Footer */
+.apple-footer {
+  text-align: center;
+  padding: 32px 0 24px 0;
+  background: #f5f5f7;
+  color: #86868b;
+  font-size: 0.98rem;
+  border-top: 1px solid #eaeaea;
+  margin-top: auto;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .apple-featured-row {
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+  .apple-featured-card {
+    width: 95vw;
+    max-width: 420px;
+  }
+  .apple-about-contact {
+    padding: 40px 10px 24px 10px;
+  }
+  .apple-hero {
+    padding: 80px 10px 40px 10px;
+  }
+  .apple-hero-title {
+    font-size: 2.2rem !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .apple-hero-image {
+    max-width: 95vw;
+  }
+  .apple-about-contact {
+    padding: 24px 4px 16px 4px;
+  }
+}
+/* Fade Animation */
+@keyframes fadeInOut {
+  0% { opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.fade-in {
+  opacity: 1;
+  transition: opacity 0.8s ease-in-out;
+}
+
+.fade-out {
+  opacity: 0;
+  transition: opacity 0.8s ease-in-out;
+}
+

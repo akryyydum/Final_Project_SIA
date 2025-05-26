@@ -28,7 +28,6 @@ const ProductDetails = () => {
           ))}
         </Stack>
       )}
-      {/* Add to Cart button would go here */}
     </div>
   );
 };

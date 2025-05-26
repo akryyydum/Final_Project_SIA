@@ -1,188 +1,78 @@
-import React from 'react';
-import './Navbar.css';
+import React, { useState } from 'react';
+import { Layout, Menu, Dropdown, Typography, Button } from 'antd';
 import {
-  AppBar,
-  Toolbar,
-  Typography,
-  IconButton,
-  Menu,
-  MenuItem,
-  Tooltip,
-} from '@mui/material';
+  HomeOutlined,
+  ShopOutlined,
+  ShoppingCartOutlined,
+  TeamOutlined,
+  PlusSquareOutlined,
+  UserOutlined,
+  LogoutOutlined,
+  LoginOutlined,
+} from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
-import AccountCircle from '@mui/icons-material/AccountCircle';
-import HomeIcon from '@mui/icons-material/Home';
-import StorefrontIcon from '@mui/icons-material/Storefront';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import GroupIcon from '@mui/icons-material/Group';
-import AddBoxIcon from '@mui/icons-material/AddBox';
 import { useAuth } from '../context/AuthContext';
+import './Navbar.css';
+
+const { Header } = Layout;
 
 const Navbar = () => {
-  const [anchorEl, setAnchorEl] = React.useState(null);
   const { isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
 
-  // Decode name and role from JWT token
-  let role = null;
-  let name = null;
-
+  let role = null, name = null;
   try {
     const token = localStorage.getItem('token');
     if (token) {
       const payload = JSON.parse(atob(token.split('.')[1]));
-      role = payload.role;
-      name = payload.name;
+      role = payload.role; name = payload.name;
     }
-  } catch  {
-    role = null;
-    name = null;
-  }
+  } catch { }
 
-  const handleMenu = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
+  const [menuVisible, setMenuVisible] = useState(false);
 
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleLogout = () => {
-    logout();
-    handleClose();
-    navigate('/login');
-  };
+  const profileMenu = (
+    <Menu onClick={({ key }) => {
+      if (key === 'logout') {
+        logout();
+        navigate('/login');
+      }
+      setMenuVisible(false);
+    }}>
+      {isAuthenticated && <Menu.Item disabled>{name} ({role})</Menu.Item>}
+      {!isAuthenticated && <Menu.Item key="login" icon={<LoginOutlined />}><Link to="/login">Login</Link></Menu.Item>}
+      {isAuthenticated && <Menu.Item key="logout" icon={<LogoutOutlined />}>Logout</Menu.Item>}
+    </Menu>
+  );
 
   return (
-    <AppBar position="fixed" className="navbar">
-      <Toolbar className="toolbar">
-        <Typography
-          variant="h6"
-          className="logo"
-          component={Link}
-          to="/"
-          sx={{ color: 'inherit', textDecoration: 'none', flexGrow: 1 }}
-        >
-          AetherTech
-        </Typography>
+    <Header className="apple-header">
+      <div className="logo" onClick={() => navigate('/')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+        <img src="/aethertech-icon.png" alt="AetherTech Logo" className="logo-img" />
+        <Typography.Title level={3} style={{ margin: 0, fontWeight: 900 }}>AetherTech</Typography.Title>
+      </div>
 
-        {/* Show user name and role */}
-        {isAuthenticated && name && role && (
-          <Typography variant="body1" sx={{ color: 'white', marginRight: 2 }}>
-            {name} ({role})
-          </Typography>
-        )}
 
-        <div className="nav-links" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {/* Show Home for all authenticated users */}
-          {isAuthenticated && (
-            <Tooltip title="Home">
-              <IconButton
-                color="inherit"
-                component={Link}
-                to="/"
-                aria-label="Home"
-              >
-                <HomeIcon />
-              </IconButton>
-            </Tooltip>
-          )}
 
-          {/* CUSTOMER NAVIGATION */}
-          {isAuthenticated && role === 'customer' && (
-            <>
-              <Tooltip title="Products">
-                <IconButton
-                  color="inherit"
-                  component={Link}
-                  to="/products" // Update the link to point to the products page
-                  aria-label="Products"
-                >
-                  <StorefrontIcon />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Cart">
-                <IconButton
-                  color="inherit"
-                  component={Link}
-                  to="/cart"
-                  aria-label="Cart"
-                >
-                  <ShoppingCartIcon />
-                </IconButton>
-              </Tooltip>
-            </>
-          )}
-          
+      <Menu mode="horizontal" theme="light" selectable={false} className="nav-menu" style={{ flex: 1 }}>
+        {isAuthenticated && <Menu.Item key="home" icon={<HomeOutlined />}><Link to="/">Home</Link></Menu.Item>}
+        {isAuthenticated && role === 'customer' && <>
+          <Menu.Item key="products" icon={<ShopOutlined />}><Link to="/products">Products</Link></Menu.Item>
+          <Menu.Item key="cart" icon={<ShoppingCartOutlined />}><Link to="/cart">Cart</Link></Menu.Item>
+        </>}
+        {isAuthenticated && role === 'admin' && <>
+          <Menu.Item key="users" icon={<TeamOutlined />}><Link to="/users">Users</Link></Menu.Item>
+          <Menu.Item key="add-product" icon={<PlusSquareOutlined />}><Link to="/admin/add-product">Add Product</Link></Menu.Item>
+          <Menu.Item key="orders" icon={<ShoppingCartOutlined />}><Link to="/checkout-list">Orders</Link></Menu.Item>
+        </>}
+      </Menu>
 
-          {/* ADMIN NAVIGATION */}
-          {isAuthenticated && role === 'admin' && (
-            <>
-              <Tooltip title="View Users">
-                <IconButton
-                  color="inherit"
-                  component={Link}
-                  to="/users"
-                  aria-label="Users"
-                >
-                  <GroupIcon />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Add Product">
-                <IconButton
-                  color="inherit"
-                  component={Link}
-                  to="/admin/add-product"
-                  aria-label="Add Product"
-                >
-                  <AddBoxIcon />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Placed Orders">
-                <IconButton
-                  color="inherit"
-                  component={Link}
-                  to="/checkout-list"
-                  aria-label="Placed Orders"
-                >
-                  <ShoppingCartIcon />
-                </IconButton>
-              </Tooltip>
-            </>
-          )}
-        </div>
-        <p>Hello</p>
-        {/* Profile Icon and Menu */}
-        <IconButton
-          edge="end"
-          color="inherit"
-          onClick={handleMenu}
-          aria-label="account"
-        >
-          <AccountCircle />
-        </IconButton>
+      {isAuthenticated && <Typography.Text type="secondary" className="user-info" ellipsis>{name} ({role})</Typography.Text>}
 
-        <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
-          {isAuthenticated && name && role && (
-            <MenuItem disabled>
-              {name} ({role})
-            </MenuItem>
-          )}
-
-          {!isAuthenticated && (
-            <MenuItem onClick={handleClose} component={Link} to="/login">
-              Login
-            </MenuItem>
-          )}
-
-          {isAuthenticated && (
-            <MenuItem onClick={handleLogout}>
-              Logout
-            </MenuItem>
-          )}
-        </Menu>
-      </Toolbar>
-    </AppBar>
+      <Dropdown overlay={profileMenu} trigger={['click']} onVisibleChange={setMenuVisible} visible={menuVisible}>
+        <Button shape="circle" icon={<UserOutlined />} size="large" className="profile-btn" aria-label="User menu" />
+      </Dropdown>
+    </Header>
   );
 };
 

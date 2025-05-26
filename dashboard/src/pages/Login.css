@@ -1,0 +1,125 @@
+.login-wrapper {
+    display: flex;
+    height: 95vh;
+    width: 100vw;
+    overflow: hidden;
+    font-family: 'Poppins', sans-serif !important;
+    overflow-y: hidden;
+}
+
+.login-image-section {
+    flex: 1;
+    position: relative;
+}
+
+.login-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.login-form-section {
+    width: 100%;
+    max-width: 480px;
+    background: #ffffff;
+    padding: 48px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.08);
+    z-index: 10;
+}
+
+.login-card {
+    border: none;
+    box-shadow: none;
+}
+
+.login-title {
+    text-align: center;
+    font-weight: 700;
+    margin-bottom: 24px;
+    color: #1d1d1f;
+    user-select: none;
+}
+
+.login-alert {
+    margin-bottom: 24px;
+    border-radius: 10px;
+    font-weight: 600;
+    user-select: none;
+}
+
+.login-form .ant-form-item-label>label {
+    font-weight: 600;
+    color: #6e6e73;
+    user-select: none;
+}
+
+.login-form .ant-input,
+.login-form .ant-input-password {
+    border-radius: 12px;
+    font-size: 16px;
+    padding: 12px 16px;
+    transition: box-shadow 0.3s ease;
+}
+
+.login-form .ant-input:focus,
+.login-form .ant-input-password:focus {
+    box-shadow: 0 0 0 2px #0071e3;
+    border-color: #0071e3;
+}
+
+.login-button {
+    background-color: #0071e3;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 16px;
+    user-select: none;
+}
+
+.login-button:hover,
+.login-button:focus {
+    background-color: #005bb5;
+    border-color: #005bb5;
+    color: #fff;
+}
+
+.signup-text {
+    display: block;
+    text-align: center;
+    margin-top: 16px;
+    color: #6e6e73;
+    user-select: none;
+}
+
+.signup-link {
+    color: #0071e3;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+    text-decoration: none;
+}
+
+.signup-link:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    .login-wrapper {
+        flex-direction: column;
+    }
+
+    .login-image-section {
+        height: 40vh;
+    }
+
+    .login-form-section {
+        max-width: 100%;
+        width: 100%;
+        box-shadow: none;
+    }
+}
+body{
+    
+}
