@@ -1,36 +1,23 @@
 import React, { useState } from 'react';
-import {
-  Container, Typography, TextField, Button, Box, Alert, Link as MuiLink, MenuItem
-} from '@mui/material';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import { Form, Input, Button, Alert, Typography, Select } from 'antd';
+import { Link, useNavigate } from 'react-router-dom';
 import { registerUser } from '../api/userApi';
+import SignupImage from '../assets/signup-at.jpg';
+import './Login.css';
+
+const { Title, Text } = Typography;
+const { Option } = Select;
 
 const SignUp = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    role: 'customer', // default role
-  });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const onFinish = async (values) => {
     setError('');
     setLoading(true);
 
-    const { name, email, password } = formData;
+    const { name, email, password, role } = values;
 
     if (!name || !email || !password) {
       setError('Please fill in all fields.');
@@ -39,7 +26,7 @@ const SignUp = () => {
     }
 
     try {
-      await registerUser(formData);
+      await registerUser({ name, email, password, role });
       navigate('/login');
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed');
@@ -49,59 +36,81 @@ const SignUp = () => {
   };
 
   return (
-    <Container maxWidth="xs" sx={{ mt: 8 }}>
-      <Typography variant="h4" gutterBottom align="center">Sign Up</Typography>
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-      <Box component="form" onSubmit={handleSubmit}>
-        <TextField
-          label="Name"
-          fullWidth
-          name="name"
-          margin="normal"
-          value={formData.name}
-          onChange={handleChange}
-          required
-        />
-        <TextField
-          label="Email"
-          type="email"
-          name="email"
-          fullWidth
-          margin="normal"
-          value={formData.email}
-          onChange={handleChange}
-          required
-        />
-        <TextField
-          label="Password"
-          type="password"
-          name="password"
-          fullWidth
-          margin="normal"
-          value={formData.password}
-          onChange={handleChange}
-          required
-        />
-        <TextField
-          select
-          label="Role"
-          name="role"
-          fullWidth
-          margin="normal"
-          value={formData.role}
-          onChange={handleChange}
+    <div className="login-wrapper">
+      <div className="login-image-section">
+        <img src={SignupImage} alt="Sign Up Illustration" className="login-image" />
+      </div>
+      <div className="login-form-section">
+        <Title level={2} className="login-title">
+          Sign Up
+        </Title>
+
+        {error && <Alert type="error" message={error} showIcon className="login-alert" />}
+
+        <Form
+          name="signup"
+          layout="vertical"
+          onFinish={onFinish}
+          initialValues={{ role: 'customer' }}
+          requiredMark={false}
+          className="login-form"
         >
-          <MenuItem value="customer">Customer</MenuItem>
-          <MenuItem value="admin">Admin</MenuItem>
-        </TextField>
-        <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }} disabled={loading}>
-          {loading ? 'Signing up...' : 'Sign Up'}
-        </Button>
-        <Typography variant="body2" align="center">
-          Already have an account? <MuiLink component={RouterLink} to="/login">Login</MuiLink>
-        </Typography>
-      </Box>
-    </Container>
+          <Form.Item
+            label="Name"
+            name="name"
+            rules={[{ required: true, message: 'Please enter your name' }]}
+          >
+            <Input size="large" />
+          </Form.Item>
+
+          <Form.Item
+            label="Email"
+            name="email"
+            rules={[
+              { required: true, message: 'Please enter your email' },
+              { type: 'email', message: 'Enter a valid email' },
+            ]}
+          >
+            <Input size="large" />
+          </Form.Item>
+
+          <Form.Item
+            label="Password"
+            name="password"
+            rules={[{ required: true, message: 'Please enter your password' }]}
+          >
+            <Input.Password size="large" />
+          </Form.Item>
+
+          <Form.Item label="Role" name="role">
+            <Select size="large">
+              <Option value="customer">Customer</Option>
+              <Option value="admin">Admin</Option>
+            </Select>
+          </Form.Item>
+
+          <Form.Item>
+            <Button
+              type="primary"
+              htmlType="submit"
+              block
+              size="large"
+              loading={loading}
+              className="login-button"
+            >
+              {loading ? 'Signing up...' : 'Sign Up'}
+            </Button>
+          </Form.Item>
+
+          <Text className="signup-text">
+            Already have an account?{' '}
+            <Link to="/login" className="signup-link">
+              Login
+            </Link>
+          </Text>
+        </Form>
+      </div>
+    </div>
   );
 };
 

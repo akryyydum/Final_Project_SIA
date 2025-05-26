@@ -1,188 +1,147 @@
-import React from 'react';
-import './Navbar.css';
+import { useState } from 'react';
+import { Layout, Menu, Dropdown, Typography, Button, Badge } from 'antd';
 import {
-  AppBar,
-  Toolbar,
-  Typography,
-  IconButton,
-  Menu,
-  MenuItem,
-  Tooltip,
-} from '@mui/material';
+  HomeOutlined,
+  ShopOutlined,
+  ShoppingCartOutlined,
+  TeamOutlined,
+  PlusSquareOutlined,
+  UserOutlined,
+  LogoutOutlined,
+  LoginOutlined,
+} from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
-import AccountCircle from '@mui/icons-material/AccountCircle';
-import HomeIcon from '@mui/icons-material/Home';
-import StorefrontIcon from '@mui/icons-material/Storefront';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import GroupIcon from '@mui/icons-material/Group';
-import AddBoxIcon from '@mui/icons-material/AddBox';
 import { useAuth } from '../context/AuthContext';
+import './Navbar.css';
+
+const { Header } = Layout;
 
 const Navbar = () => {
-  const [anchorEl, setAnchorEl] = React.useState(null);
   const { isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
 
-  // Decode name and role from JWT token
-  let role = null;
-  let name = null;
-
+  let role = null, name = null;
   try {
     const token = localStorage.getItem('token');
     if (token) {
       const payload = JSON.parse(atob(token.split('.')[1]));
-      role = payload.role;
-      name = payload.name;
+      role = payload.role; name = payload.name;
     }
-  } catch  {
-    role = null;
-    name = null;
+  } catch {
+    console.error('Error parsing token:', localStorage.getItem('token'));
+    role = null; name = null;
   }
 
-  const handleMenu = (event) => {
-    setAnchorEl(event.currentTarget);
+  const [menuVisible, setMenuVisible] = useState(false);
+
+  const profileMenuItems = [
+    isAuthenticated && {
+      key: 'user-info',
+      label: `${name} (${role})`,
+      disabled: true,
+    },
+    !isAuthenticated && {
+      key: 'login',
+      icon: <LoginOutlined />,
+      label: <Link to="/login">Login</Link>,
+    },
+    isAuthenticated && {
+      key: 'logout',
+      icon: <LogoutOutlined />,
+      label: 'Logout',
+    },
+  ].filter(Boolean);
+
+  const handleMenuClick = ({ key }) => {
+    if (key === 'logout') {
+      logout();
+      navigate('/login');
+    }
+    setMenuVisible(false);
   };
 
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleLogout = () => {
-    logout();
-    handleClose();
-    navigate('/login');
+  const profileMenu = {
+    items: profileMenuItems,
+    onClick: handleMenuClick,
   };
 
   return (
-    <AppBar position="fixed" className="navbar">
-      <Toolbar className="toolbar">
-        <Typography
-          variant="h6"
-          className="logo"
-          component={Link}
-          to="/"
-          sx={{ color: 'inherit', textDecoration: 'none', flexGrow: 1 }}
-        >
+    <Header className="apple-header" style={{ display: 'flex', alignItems: 'center', padding: '0 24px' }}>
+      <div
+        className="logo"
+        onClick={() => navigate('/')}
+        style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', marginRight: 32 }}
+      >
+        <img src="/aethertech-icon.png" alt="AetherTech Logo" className="logo-img" style={{ height: 40, marginRight: 12 }} />
+        <Typography.Title level={3} style={{ margin: 0, fontWeight: 900, color: '#fff' }}>
           AetherTech
-        </Typography>
+        </Typography.Title>
+      </div>
 
-        {/* Show user name and role */}
-        {isAuthenticated && name && role && (
-          <Typography variant="body1" sx={{ color: 'white', marginRight: 2 }}>
-            {name} ({role})
-          </Typography>
+      <Menu mode="horizontal" theme="light" selectable={false} className="nav-menu" style={{ flex: 1 }}>
+        {isAuthenticated && (
+          <Menu.Item key="home" icon={<HomeOutlined />}>
+            <Link to="/">Home</Link>
+          </Menu.Item>
         )}
+        {isAuthenticated && role === 'customer' && (
+          <>
+            <Menu.Item key="products" icon={<ShopOutlined />}>
+              <Link to="/products">Products</Link>
+            </Menu.Item>
+            <Menu.Item key="cart" icon={<ShoppingCartOutlined />}>
+              <Link to="/cart">Cart</Link>
+            </Menu.Item>
+          </>
+        )}
+        {isAuthenticated && role === 'admin' && (
+          <>
+            <Menu.Item key="users" icon={<TeamOutlined />}>
+              <Link to="/users">Users</Link>
+            </Menu.Item>
+            <Menu.Item key="add-product" icon={<PlusSquareOutlined />}>
+              <Link to="/admin/add-product">Add Product</Link>
+            </Menu.Item>
+            <Menu.Item key="orders" icon={<ShoppingCartOutlined />}>
+              <Link to="/admin/orders">Orders</Link>
+            </Menu.Item>
+          </>
+        )}
+      </Menu>
 
-        <div className="nav-links" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {/* Show Home for all authenticated users */}
-          {isAuthenticated && (
-            <Tooltip title="Home">
-              <IconButton
-                color="inherit"
-                component={Link}
-                to="/"
-                aria-label="Home"
-              >
-                <HomeIcon />
-              </IconButton>
-            </Tooltip>
-          )}
+      {isAuthenticated && (
+        <Typography.Text type="secondary" className="user-info" ellipsis style={{ marginRight: 16 }}>
+          {name} ({role})
+        </Typography.Text>
+      )}
 
-          {/* CUSTOMER NAVIGATION */}
-          {isAuthenticated && role === 'customer' && (
-            <>
-              <Tooltip title="Products">
-                <IconButton
-                  color="inherit"
-                  component={Link}
-                  to="/products" // Update the link to point to the products page
-                  aria-label="Products"
-                >
-                  <StorefrontIcon />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Cart">
-                <IconButton
-                  color="inherit"
-                  component={Link}
-                  to="/cart"
-                  aria-label="Cart"
-                >
-                  <ShoppingCartIcon />
-                </IconButton>
-              </Tooltip>
-            </>
-          )}
-          
+      {/* Cart Icon Button for Customers */}
+      {isAuthenticated && role === 'customer' && (
+        <Button
+          type="text"
+          className="cart-navbar-btn"
+          style={{ marginRight: 16 }}
+          onClick={() => navigate('/cart')}
+          icon={
+            <Badge count={0} size="small" offset={[0, 6]}>
+              <ShoppingCartOutlined style={{ fontSize: 24 }} />
+            </Badge>
+          }
+          aria-label="Cart"
+        />
+      )}
 
-          {/* ADMIN NAVIGATION */}
-          {isAuthenticated && role === 'admin' && (
-            <>
-              <Tooltip title="View Users">
-                <IconButton
-                  color="inherit"
-                  component={Link}
-                  to="/users"
-                  aria-label="Users"
-                >
-                  <GroupIcon />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Add Product">
-                <IconButton
-                  color="inherit"
-                  component={Link}
-                  to="/admin/add-product"
-                  aria-label="Add Product"
-                >
-                  <AddBoxIcon />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Placed Orders">
-                <IconButton
-                  color="inherit"
-                  component={Link}
-                  to="/checkout-list"
-                  aria-label="Placed Orders"
-                >
-                  <ShoppingCartIcon />
-                </IconButton>
-              </Tooltip>
-            </>
-          )}
-        </div>
-        <p>Hello</p>
-        {/* Profile Icon and Menu */}
-        <IconButton
-          edge="end"
-          color="inherit"
-          onClick={handleMenu}
-          aria-label="account"
-        >
-          <AccountCircle />
-        </IconButton>
-
-        <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
-          {isAuthenticated && name && role && (
-            <MenuItem disabled>
-              {name} ({role})
-            </MenuItem>
-          )}
-
-          {!isAuthenticated && (
-            <MenuItem onClick={handleClose} component={Link} to="/login">
-              Login
-            </MenuItem>
-          )}
-
-          {isAuthenticated && (
-            <MenuItem onClick={handleLogout}>
-              Logout
-            </MenuItem>
-          )}
-        </Menu>
-      </Toolbar>
-    </AppBar>
+      {/* Profile Dropdown */}
+      <Dropdown
+        menu={profileMenu}
+        trigger={['click']}
+        onOpenChange={setMenuVisible}
+        open={menuVisible}
+        placement="bottomRight"
+      >
+        <Button shape="circle" icon={<UserOutlined />} size="large" className="profile-btn" aria-label="User menu" />
+      </Dropdown>
+    </Header>
   );
 };
 

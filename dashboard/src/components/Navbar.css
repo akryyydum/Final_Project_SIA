@@ -1,48 +1,88 @@
-/* src/components/Navbar.css */
-
-.navbar {
-  background: rgba(20, 20, 20, 0.7);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-.navbar.MuiAppBar-root {
-  background: rgba(20, 20, 20, 0.7) !important;
-  backdrop-filter: blur(10px) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
-}
-
-.navbar.MuiTypography-root {
-  font-family: 'Helvetica Neue', sans-serif;
-  font-weight: bold;
-  color: white !important;
-}
-
-.toolbar {
+.apple-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  padding: 0 40px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: saturate(180%) blur(20px);
+  box-shadow: 0 1px 8px rgb(0 0 0 / 0.1);
+  z-index: 1000;
   display: flex;
-  justify-content: space-between;
-  padding: 0 1rem;
+  align-items: center;
+}
+.logo-img {
+  height: 36px;
+  object-fit: contain;
+  margin-right: 12px;
 }
 
 .logo {
-  font-family: 'Helvetica Neue', sans-serif;
-  font-weight: bold;
-  color: white;
-  text-decoration: none;
+  font-family: 'SF Pro Display', 'Poppins', Arial, sans-serif;
+  font-weight: 900;
+  color: #000;
+  margin-right: 48px;
+  user-select: none;
 }
 
-.nav-links {
-  display: flex;
-  gap: 1rem;
+.nav-menu {
+  border-bottom: none !important;
+  font-weight: 600;
+  font-size: 14px;
+  flex-grow: 1;
+  background: transparent !important;
 }
 
-.nav-btn {
-  color: white;
-  text-transform: none;
-  font-weight: 500;
-  font-size: 1rem;
+.nav-menu .ant-menu-item {
+  margin: 0 16px;
+  border-bottom: none !important;
+  padding: 0 !important;
+  transition: color 0.3s ease;
 }
 
-.nav-btn:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  border-radius: 6px;
+.nav-menu .ant-menu-item a {
+  color: #000;
+  font-weight: 600;
+  user-select: none;
+}
+
+.nav-menu .ant-menu-item:hover,
+.nav-menu .ant-menu-item-selected {
+  color: #0071e3;
+  border-bottom: 2px solid #0071e3;
+}
+
+.user-info {
+  margin-right: 24px;
+  font-weight: 600;
+  color: #555;
+  user-select: none;
+  max-width: 140px;
+}
+
+.profile-btn {
+  border: none;
+  color: #000;
+  background: transparent;
+  transition: color 0.2s ease;
+}
+
+.profile-btn:hover,
+.profile-btn:focus {
+  color: #0071e3;
+  background: rgba(0, 113, 227, 0.1);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .apple-header {
+    padding: 0 20px;
+  }
+
+  .nav-menu,
+  .user-info {
+    display: none;
+  }
 }

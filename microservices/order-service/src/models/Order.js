@@ -10,7 +10,12 @@ const orderSchema = new mongoose.Schema({
   ],
   total: { type: Number, required: true },
   status: { type: String, default: 'pending' },
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now },
+  customer: {
+    name: String,
+    email: String,
+    address: String,
+  },
 });
 
 module.exports = mongoose.model('Order', orderSchema);

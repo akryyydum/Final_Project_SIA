@@ -12,17 +12,32 @@ export const CartProvider = ({ children }) => {
   const fetchCart = async () => {
     if (!token) return;
     try {
-      const res = await axios.get(`http://localhost:5003/api/carts/me`, {
+      const res = await axios.get("http://localhost:5003/api/carts/me", {
         headers: { Authorization: `Bearer ${token}` },
       });
       const items = res.data?.items || [];
-      setCartItems(
-        items.map((item) => ({
-          ...item,
-          quantity: item.quantity || 1,
-        }))
+
+      // Fetch product details for each cart item
+      const detailedItems = await Promise.all(
+        items.map(async (item) => {
+          try {
+            const productRes = await axios.get(
+              `http://localhost:4000/api/products/${item.productId}`
+            );
+            return {
+              ...productRes.data,
+              quantity: item.quantity,
+              productId: item.productId,
+            };
+          } catch  {
+            return item;
+          }
+        })
       );
-    } catch {
+
+      setCartItems(detailedItems);
+    } catch (error) {
+      console.error("Failed to fetch cart:", error.response?.data || error.message);
       setCartItems([]);
     }
   };
@@ -34,32 +49,36 @@ export const CartProvider = ({ children }) => {
 
   // Save cart to backend
   const saveCart = async (items) => {
-  try {
-    const token = localStorage.getItem('token');
+    if (!token) {
+      console.error("No auth token found, cannot save cart.");
+      return;
+    }
+    try {
+      const cleanedItems = items.map((item) => ({
+        productId: item.productId || item._id,
+        quantity: item.quantity,
+      })).filter(item => !!item.productId);
 
-    // Map items to match backend schema: [{ productId, quantity }]
-    const cleanedItems = items.map(item => ({
-      productId: item._id || item.productId, // support both key names
-      quantity: item.quantity
-    }));
+      console.log("Saving cart with items:", cleanedItems);
 
-    const response = await axios.put(
-      'http://localhost:5003/api/carts/me',
-      { items: cleanedItems },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
+      await axios.put(
+        "http://localhost:5003/api/carts/me",
+        { items: cleanedItems },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         }
-      }
-    );
+      );
 
-    console.log('Cart saved successfully:', response.data);
-  } catch (error) {
-    console.error('Failed to save cart:', error.response?.data || error.message);
-  }
-};
-
+      // Fetch full product details after saving
+      await fetchCart();
+      console.log("Cart saved and refreshed successfully");
+    } catch (error) {
+      console.error("Failed to save cart:", error.response?.data || error.message);
+    }
+  };
 
   // Add to cart
   const addToCart = (product) => {
@@ -77,7 +96,7 @@ export const CartProvider = ({ children }) => {
       } else {
         updatedItems = [
           ...prevItems,
-          { ...product, productId: product._id, quantity: 1 },
+          { ...product, productId: product._id, quantity: 1 }, // <-- use product._id
         ];
       }
       saveCart(updatedItems);
@@ -122,9 +141,14 @@ export const CartProvider = ({ children }) => {
     });
   };
 
+  // Clear cart
+  const clearCart = () => {
+    setCartItems([]);
+  };
+
   return (
     <CartContext.Provider
-      value={{ cartItems, addToCart, increaseQty, decreaseQty, removeFromCart }}
+      value={{ cartItems, addToCart, increaseQty, decreaseQty, removeFromCart, clearCart }}
     >
       {children}
     </CartContext.Provider>

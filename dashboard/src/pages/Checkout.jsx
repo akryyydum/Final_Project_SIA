@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import {
   Container,
   Typography,
@@ -14,6 +15,8 @@ import {
   ListItemText,
   Alert,
 } from '@mui/material';
+import { useCart } from '../context/CartContext'; // <-- Import this
+import { useAuth } from '../context/AuthContext'; // Add this import
 
 const Checkout = () => {
   const [orderInfo, setOrderInfo] = useState({
@@ -25,14 +28,11 @@ const Checkout = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // Mock cart data — replace with real data later
-  const cartItems = [
-    { name: 'iPhone 15 Pro', price: 1299, quantity: 1 },
-    { name: 'MacBook Air M2', price: 1099, quantity: 1 },
-  ];
+  const { cartItems, clearCart } = useCart(); // <-- add clearCart
+  const { user } = useAuth(); // Get the logged-in user
 
   const total = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+    (sum, item) => sum + (item.price * (item.quantity || 1)),
     0
   );
 
@@ -40,7 +40,7 @@ const Checkout = () => {
     setOrderInfo({ ...orderInfo, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const { name, email, address } = orderInfo;
@@ -51,9 +51,35 @@ const Checkout = () => {
       return;
     }
 
-    // Replace with your order API logic here
-    setError('');
-    setSuccess('Order placed successfully!');
+    try {
+      // Map cartItems to the required format
+      const items = cartItems.map(item => ({
+        productId: item._id, // Always use _id if that's what your cart uses
+        quantity: item.quantity || 1
+      }));
+
+      console.log({
+        userId: user?.userId,
+        items,
+        total,
+        createdAt: new Date(),
+        customer: { name, email, address }
+      });
+
+      await axios.post("http://localhost:5002/api/orders", {
+        userId: user?.userId, // must match your AuthContext user object
+        items,
+        total,
+        createdAt: new Date(),
+        customer: { name, email, address } // <-- add this line
+      });
+      setError('');
+      setSuccess('Order placed successfully!');
+      clearCart(); // <-- clear the cart here
+    } catch  {
+      setError('Failed to place order');
+      setSuccess('');
+    }
   };
 
   return (
@@ -126,13 +152,13 @@ const Checkout = () => {
             <CardContent>
               <List>
                 {cartItems.map((item, index) => (
-                  <ListItem key={index} divider>
+                  <ListItem key={item.productId || item._id || index} divider>
                     <ListItemText
                       primary={`${item.name} x${item.quantity}`}
-                      secondary={`$${item.price.toFixed(2)} each`}
+                      secondary={`$${item.price?.toFixed(2) || 0} each`}
                     />
                     <Typography variant="body2">
-                      ${item.price * item.quantity}
+                      ${(item.price * (item.quantity || 1)).toFixed(2)}
                     </Typography>
                   </ListItem>
                 ))}

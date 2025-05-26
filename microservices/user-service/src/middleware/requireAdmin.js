@@ -1,8 +1,20 @@
+const jwt = require('jsonwebtoken');
+
 module.exports = function requireAdmin(req, res, next) {
-  // If using JWT, you should decode the token and attach user info to req.user
-  // For now, let's assume req.user is already set by previous auth middleware
-  if (req.user && req.user.role === 'admin') {
-    return next();
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ message: 'No token provided' });
   }
-  return res.status(403).json({ message: 'Admins only' });
+  const token = authHeader.split(' ')[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log("Decoded JWT:", decoded); // <-- Add this line
+    if (decoded && decoded.role === 'admin') {
+      req.user = decoded;
+      return next();
+    }
+    return res.status(403).json({ message: 'Admins only' });
+  } catch (err) {
+    return res.status(401).json({ message: 'Invalid token' });
+  }
 };
