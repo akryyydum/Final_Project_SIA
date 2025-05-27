@@ -1,16 +1,40 @@
-import React, { useState } from 'react';
-import { Form, Input, Button, Row, Col, Typography, Alert, Card, List, Divider } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Form, Input, Button, Row, Col, Typography, Alert, Card, List, Divider, Select } from 'antd';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import './Checkout.css';
 
 const { Title } = Typography;
+const { Option } = Select;
+
+const countriesData = {
+  Philippines: {
+    states: {
+      'Nueva Vizcaya': ['Bayombong', 'Bagabag', 'Solano'],
+      'Metro Manila': ['Quezon City', 'Manila', 'Makati'],
+    },
+  },
+  USA: {
+    states: {
+      California: ['Los Angeles', 'San Francisco', 'San Diego'],
+      Texas: ['Houston', 'Austin', 'Dallas'],
+    },
+  },
+  Canada: {
+    states: {
+      Ontario: ['Toronto', 'Ottawa', 'Hamilton'],
+      Quebec: ['Montreal', 'Quebec City', 'Laval'],
+    },
+  },
+};
 
 const Checkout = () => {
   const [form] = Form.useForm();
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [selectedCountry, setSelectedCountry] = useState(null);
+  const [selectedState, setSelectedState] = useState(null);
 
   const { cartItems, clearCart } = useCart();
   const { user } = useAuth();
@@ -20,36 +44,48 @@ const Checkout = () => {
     0
   );
 
+  const states = selectedCountry ? Object.keys(countriesData[selectedCountry].states) : [];
+
+  const cities =
+    selectedCountry && selectedState
+      ? countriesData[selectedCountry].states[selectedState]
+      : [];
+
+  const onCountryChange = (value) => {
+    setSelectedCountry(value);
+    setSelectedState(null);
+    form.setFieldsValue({ state: undefined, city: undefined });
+  };
+
+  const onStateChange = (value) => {
+    setSelectedState(value);
+    form.setFieldsValue({ city: undefined });
+  };
+
   const onFinish = async (values) => {
     const { name, email, street, city, state, zip, country } = values;
     const fullAddress = `${street}, ${city}, ${state} ${zip}, ${country}`;
 
     try {
-      // Log cartItems for debugging
       console.log("cartItems:", cartItems);
 
-      // Always use item.productId if present, otherwise fallback to item._id
       const items = cartItems.map(item => {
-  const productId = item.productId ?? item._id ?? null;
+        const productId = item.productId ?? item._id ?? null;
 
-  if (!productId) {
-    console.warn('Missing productId and _id for cart item:', item);
-  }
+        if (!productId) {
+          console.warn('Missing productId and _id for cart item:', item);
+        }
 
-  return {
-    productId,
-    productName: item.name,
-    productPrice: item.price,
-    quantity: item.quantity || 1
-  };
-});
+        return {
+          productId,
+          productName: item.name,
+          productPrice: item.price,
+          quantity: item.quantity || 1
+        };
+      });
 
-
-
-      // Log for debugging
       console.log("Order items to send:", items);
 
-      // Check for missing productId
       if (items.some(item => !item.productId)) {
         setError('One or more cart items are missing a product ID. Please refresh your cart.');
         return;
@@ -71,6 +107,8 @@ const Checkout = () => {
       setError('');
       clearCart();
       form.resetFields();
+      setSelectedCountry(null);
+      setSelectedState(null);
     } catch (err) {
       console.error(err);
       setError('Failed to place order');
@@ -98,12 +136,27 @@ const Checkout = () => {
             requiredMark={false}
           >
             <Form.Item
-              name="name"
-              label="Full Name"
-              rules={[{ required: true, message: 'Please enter your full name' }]}
-            >
-              <Input size="large" placeholder="Felix C. Leid Jr." />
-            </Form.Item>
+  name="name"
+  label="Full Name"
+  rules={[
+    { required: true, message: 'Please enter your full name' },
+    {
+      pattern: /^[A-Za-z.\s]+$/,
+      message: 'Name can only contain letters, spaces, and dots',
+    },
+  ]}
+>
+  <Input
+    size="large"
+    placeholder="Juan C. Dela Cruz Jr."
+    onKeyPress={(e) => {
+      if (!/[A-Za-z.\s]/.test(e.key)) {
+        e.preventDefault();
+      }
+    }}
+  />
+</Form.Item>
+
 
             <Form.Item
               name="email"
@@ -122,41 +175,90 @@ const Checkout = () => {
             </Form.Item>
 
             <Form.Item
+              name="country"
+              label="Country"
+              rules={[{ required: true, message: 'Select a country' }]}
+            >
+              <Select
+                size="large"
+                placeholder="Select country"
+                onChange={onCountryChange}
+                allowClear
+                showSearch
+                optionFilterProp="children"
+              >
+                {Object.keys(countriesData).map((country) => (
+                  <Option key={country} value={country}>{country}</Option>
+                ))}
+              </Select>
+            </Form.Item>
+
+            <Form.Item
+              name="state"
+              label="State / Province"
+              rules={[{ required: true, message: 'Select a state' }]}
+            >
+              <Select
+                size="large"
+                placeholder={selectedCountry ? "Select state" : "Select country first"}
+                onChange={onStateChange}
+                allowClear
+                disabled={!selectedCountry}
+                showSearch
+                optionFilterProp="children"
+              >
+                {states.map((state) => (
+                  <Option key={state} value={state}>{state}</Option>
+                ))}
+              </Select>
+            </Form.Item>
+
+            <Form.Item
               name="city"
               label="City"
-              rules={[{ required: true, message: 'Enter city' }]}
+              rules={[{ required: true, message: 'Select a city' }]}
             >
-              <Input size="large" placeholder="Bayombong" />
+              <Select
+                size="large"
+                placeholder={selectedState ? "Select city" : "Select state first"}
+                allowClear
+                disabled={!selectedState}
+                showSearch
+                optionFilterProp="children"
+              >
+                {cities.map((city) => (
+                  <Option key={city} value={city}>{city}</Option>
+                ))}
+              </Select>
             </Form.Item>
 
             <Row gutter={12}>
               <Col span={12}>
                 <Form.Item
-                  name="state"
-                  label="State"
-                  rules={[{ required: true, message: 'Enter state' }]}
-                >
-                  <Input size="large" placeholder="Nueva Vizcaya" />
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item
-                  name="zip"
-                  label="ZIP Code"
-                  rules={[{ required: true, message: 'Enter ZIP code' }]}
-                >
-                  <Input size="large" placeholder="3700" />
-                </Form.Item>
+  name="zip"
+  label="ZIP Code"
+  rules={[
+    { required: true, message: 'Enter ZIP code' },
+    {
+      pattern: /^\d+$/,
+      message: 'ZIP code must contain only numbers',
+    },
+  ]}
+>
+  <Input
+    size="large"
+    placeholder="3700"
+    maxLength={10}
+    onKeyPress={(e) => {
+      if (!/[0-9]/.test(e.key)) {
+        e.preventDefault();
+      }
+    }}
+  />
+</Form.Item>
+
               </Col>
             </Row>
-
-            <Form.Item
-              name="country"
-              label="Country"
-              rules={[{ required: true, message: 'Enter country' }]}
-            >
-              <Input size="large" placeholder="Philippines" />
-            </Form.Item>
 
             <Form.Item>
               <Button type="primary" htmlType="submit" size="large" block>
