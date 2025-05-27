@@ -72,15 +72,15 @@ const AddProduct = () => {
   };
 
   return (
-    <div className="add-product-wrapper">
-      <Card className="add-product-card">
-        <Title level={2} className="add-product-title">Add Product</Title>
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleSubmit}
-          className="add-product-form"
-        >
+<div className="add-product-wrapper">
+  <br /><br />
+  <Title level={2} className="add-product-title">Add Product</Title>
+  <Form
+    form={form}
+    layout="vertical"
+    onFinish={handleSubmit}
+    className="add-product-form"
+  >
           <Form.Item label="Product Name" name="name" rules={[{ required: true }]}>
             <Input placeholder="e.g. iPhone 15 Pro" />
           </Form.Item>
@@ -89,13 +89,48 @@ const AddProduct = () => {
             <Input.TextArea rows={4} placeholder="Enter product description" />
           </Form.Item>
 
-          <Form.Item label="Price" name="price" rules={[{ required: true }]}>
-            <InputNumber min={0} style={{ width: "100%" }} placeholder="e.g. 999.99" />
-          </Form.Item>
+<Form.Item
+  label="Price"
+  name="price"
+  rules={[
+    { required: true, message: "Please enter a price" },
+    {
+      validator: (_, value) =>
+        typeof value === "number" && value >= 0
+          ? Promise.resolve()
+          : Promise.reject(new Error("Price must be a number")),
+    },
+  ]}
+>
+  <InputNumber
+    min={0}
+    step={0.01}
+    style={{ width: "100%" }}
+    placeholder="e.g. 999.99"
+  />
+</Form.Item>
 
-          <Form.Item label="Stock" name="stock" rules={[{ required: true }]}>
-            <InputNumber min={0} style={{ width: "100%" }} placeholder="e.g. 25" />
-          </Form.Item>
+<Form.Item
+  label="Stock"
+  name="stock"
+  rules={[
+    { required: true, message: "Please enter stock quantity" },
+    {
+      validator: (_, value) =>
+        Number.isInteger(value) && value >= 0
+          ? Promise.resolve()
+          : Promise.reject(new Error("Stock must be a number")),
+    },
+  ]}
+>
+  <InputNumber
+    min={0}
+    step={1}
+    style={{ width: "100%" }}
+    placeholder="e.g. 25"
+  />
+</Form.Item>
+
 
           <Form.Item label="Category" name="category" rules={[{ required: true }]}>
             <Input placeholder="e.g. Electronics" />
@@ -121,7 +156,6 @@ const AddProduct = () => {
             </Button>
           </Form.Item>
         </Form>
-      </Card>
     </div>
   );
 };

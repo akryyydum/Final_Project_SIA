@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { Form, Input, Button, Alert, Typography, Select } from 'antd';
+import { Form, Input, Button, Alert, Typography } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
 import { registerUser } from '../api/userApi';
 import SignupImage from '../assets/signup-at.jpg';
 import './Login.css';
 
 const { Title, Text } = Typography;
-const { Option } = Select;
 
 const SignUp = () => {
   const [error, setError] = useState('');
@@ -41,74 +40,83 @@ const SignUp = () => {
         <img src={SignupImage} alt="Sign Up Illustration" className="login-image" />
       </div>
       <div className="login-form-section">
-        <Title level={2} className="login-title">
-          Sign Up
-        </Title>
+        <div className="login-card">
+          <Title level={2} className="login-title">
+            Sign Up
+          </Title>
 
-        {error && <Alert type="error" message={error} showIcon className="login-alert" />}
+          {error && <Alert type="error" message={error} showIcon className="login-alert" />}
 
-        <Form
-          name="signup"
-          layout="vertical"
-          onFinish={onFinish}
-          initialValues={{ role: 'customer' }}
-          requiredMark={false}
-          className="login-form"
-        >
-          <Form.Item
-            label="Name"
-            name="name"
-            rules={[{ required: true, message: 'Please enter your name' }]}
+          <Form
+            name="signup"
+            layout="vertical"
+            onFinish={onFinish}
+            initialValues={{ role: 'customer' }}
+            requiredMark={false}
+            className="login-form"
           >
-            <Input size="large" />
-          </Form.Item>
+<Form.Item
+  label="Name"
+  name="name"
+  rules={[
+    { required: true, message: 'Please enter your name' },
+    {
+      pattern: /^[A-Za-z\s]+$/,
+      message: 'Name can only contain letters and spaces',
+    },
+  ]}
+>
+  <Input size="large" />
+</Form.Item>
 
-          <Form.Item
-            label="Email"
-            name="email"
-            rules={[
-              { required: true, message: 'Please enter your email' },
-              { type: 'email', message: 'Enter a valid email' },
-            ]}
-          >
-            <Input size="large" />
-          </Form.Item>
-
-          <Form.Item
-            label="Password"
-            name="password"
-            rules={[{ required: true, message: 'Please enter your password' }]}
-          >
-            <Input.Password size="large" />
-          </Form.Item>
-
-          <Form.Item label="Role" name="role">
-            <Select size="large">
-              <Option value="customer">Customer</Option>
-              <Option value="admin">Admin</Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item>
-            <Button
-              type="primary"
-              htmlType="submit"
-              block
-              size="large"
-              loading={loading}
-              className="login-button"
+            <Form.Item
+              label="Email"
+              name="email"
+              rules={[
+                { required: true, message: 'Please enter your email' },
+                { type: 'email', message: 'Enter a valid email' },
+              ]}
             >
-              {loading ? 'Signing up...' : 'Sign Up'}
-            </Button>
-          </Form.Item>
+              <Input size="large" />
+            </Form.Item>
+<Form.Item
+  label="Password"
+  name="password"
+  rules={[
+    { required: true, message: 'Please enter your password' },
+    {
+      pattern: /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+[\]{};':"\\|,.<>/?-]).+$/,
+      message:
+        'Password must contain at least one uppercase letter, one number, and one special character',
+    },
+  ]}
+>
+  <Input.Password size="large" />
+</Form.Item>
 
-          <Text className="signup-text">
-            Already have an account?{' '}
-            <Link to="/login" className="signup-link">
-              Login
-            </Link>
-          </Text>
-        </Form>
+            {/* Role selection commented out */}
+
+            <Form.Item>
+              <Button
+                type="primary"
+                htmlType="submit"
+                block
+                size="large"
+                loading={loading}
+                className="login-button"
+              >
+                {loading ? 'Signing up...' : 'Sign Up'}
+              </Button>
+            </Form.Item>
+
+            <Text className="signup-text">
+              Already have an account?{' '}
+              <Link to="/login" className="signup-link">
+                Login
+              </Link>
+            </Text>
+          </Form>
+        </div>
       </div>
     </div>
   );

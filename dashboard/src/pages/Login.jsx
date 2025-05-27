@@ -28,7 +28,6 @@ const Login = () => {
     try {
       const res = await loginUser({ email, password });
       if (res.data && res.data.token) {
-        // Pass both token and user info to login if needed
         login(res.data.token, {
           userId: res.data.userId,
           name: res.data.name,

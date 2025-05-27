@@ -8,16 +8,15 @@ export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
   const { token } = useAuth();
 
-  // Fetch cart from backend
   const fetchCart = async () => {
     if (!token) return;
     try {
       const res = await axios.get("http://localhost:5003/api/carts/me", {
         headers: { Authorization: `Bearer ${token}` },
       });
+
       const items = res.data?.items || [];
 
-      // Fetch product details for each cart item
       const detailedItems = await Promise.all(
         items.map(async (item) => {
           try {
@@ -29,7 +28,7 @@ export const CartProvider = ({ children }) => {
               quantity: item.quantity,
               productId: item.productId,
             };
-          } catch  {
+          } catch {
             return item;
           }
         })
@@ -44,22 +43,21 @@ export const CartProvider = ({ children }) => {
 
   useEffect(() => {
     fetchCart();
-    // eslint-disable-next-line
   }, [token]);
 
-  // Save cart to backend
   const saveCart = async (items) => {
     if (!token) {
       console.error("No auth token found, cannot save cart.");
       return;
     }
-    try {
-      const cleanedItems = items.map((item) => ({
-        productId: item.productId || item._id,
-        quantity: item.quantity,
-      })).filter(item => !!item.productId);
 
-      console.log("Saving cart with items:", cleanedItems);
+    try {
+      const cleanedItems = items
+        .map((item) => ({
+          productId: item.productId || item._id,
+          quantity: item.quantity,
+        }))
+        .filter((item) => !!item.productId);
 
       await axios.put(
         "http://localhost:5003/api/carts/me",
@@ -72,15 +70,12 @@ export const CartProvider = ({ children }) => {
         }
       );
 
-      // Fetch full product details after saving
       await fetchCart();
-      console.log("Cart saved and refreshed successfully");
     } catch (error) {
       console.error("Failed to save cart:", error.response?.data || error.message);
     }
   };
 
-  // Add to cart
   const addToCart = (product) => {
     setCartItems((prevItems) => {
       const existing = prevItems.find(
@@ -96,7 +91,7 @@ export const CartProvider = ({ children }) => {
       } else {
         updatedItems = [
           ...prevItems,
-          { ...product, productId: product._id, quantity: 1 }, // <-- use product._id
+          { ...product, productId: product._id, quantity: 1 },
         ];
       }
       saveCart(updatedItems);
@@ -104,7 +99,6 @@ export const CartProvider = ({ children }) => {
     });
   };
 
-  // Increase quantity
   const increaseQty = (productId) => {
     setCartItems((prevItems) => {
       const updatedItems = prevItems.map((item) =>
@@ -117,7 +111,6 @@ export const CartProvider = ({ children }) => {
     });
   };
 
-  // Decrease quantity
   const decreaseQty = (productId) => {
     setCartItems((prevItems) => {
       const updatedItems = prevItems.map((item) =>
@@ -130,7 +123,6 @@ export const CartProvider = ({ children }) => {
     });
   };
 
-  // Remove from cart
   const removeFromCart = (productId) => {
     setCartItems((prevItems) => {
       const updatedItems = prevItems.filter(
@@ -141,14 +133,24 @@ export const CartProvider = ({ children }) => {
     });
   };
 
-  // Clear cart
   const clearCart = () => {
     setCartItems([]);
   };
 
+  const getCartCount = () =>
+    cartItems.reduce((total, item) => total + item.quantity, 0);
+
   return (
     <CartContext.Provider
-      value={{ cartItems, addToCart, increaseQty, decreaseQty, removeFromCart, clearCart }}
+      value={{
+        cartItems,
+        addToCart,
+        increaseQty,
+        decreaseQty,
+        removeFromCart,
+        clearCart,
+        getCartCount,
+      }}
     >
       {children}
     </CartContext.Provider>
@@ -156,5 +158,4 @@ export const CartProvider = ({ children }) => {
 };
 
 export const useCart = () => useContext(CartContext);
-
 export default CartContext;

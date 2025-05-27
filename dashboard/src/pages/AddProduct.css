@@ -1,14 +1,96 @@
-/* AddProduct.css */
 .add-product-wrapper {
-  font-family: 'SF Pro Display', 'Poppins', Arial, sans-serif;
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 40px 20px;
-  background-color: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100vw;
+  padding: 0 60px;
+  box-sizing: border-box;
+  background-color: #f5f5f7;
+  
+}
+
+.add-product-title {
+  font-weight: 600;
+  font-size: 2.8rem;
+  color: #111;
+  margin-bottom: 40px;
+  letter-spacing: -0.02em;
+  user-select: none;
+  align-self: flex-start;
+  max-width: 900px;
+  width: 100%;
+  font-family: 'SF Pro Display', 'Poppins', Arial, sans-serif !important;
+}
+
+.add-product-form {
+  width: 100%;
+  max-width: 900px;
+  font-family: 'SF Pro Display', 'Poppins', Arial, sans-serif !important;
+
 }
 
 .add-product-form .ant-form-item {
-  margin-bottom: 16px;
+  margin-bottom: 28px;
+}
+
+.ant-input,
+.ant-input-number,
+.ant-input-textarea {
+  width: 100%;        
+  border-radius: 12px;
+  border: 1px solid #d2d2d7;
+  font-size: 1rem;
+  padding: 12px 16px;
+  transition: border-color 0.3s ease;
+}
+
+.ant-input:focus,
+.ant-input-number-focused,
+.ant-input-textarea:focus {
+  border-color: #86868b;
+}
+
+/* Upload button smaller */
+.ant-upload > .ant-btn {
+  border-radius: 12px;
+  background: #1a181d;
+  color: white;
+  border: none;
+  font-weight: 600;
+  padding: 6px 16px;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+  height: 36px;
+}
+
+.ant-upload > .ant-btn:hover {
+  background: #86868b;
+}
+
+.ant-btn-primary {
+  border-radius: 14px;
+  height: 40px;
+  font-size: 1rem;
+  font-weight: 700;
+  background-color: #1a181d;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+.ant-btn-primary:hover,
+.ant-btn-primary:focus {
+  background-color: #86868b;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .add-product-wrapper {
+    padding: 0 20px;
+  }
+
+  .add-product-title {
+    font-size: 2rem;
+  }
 }

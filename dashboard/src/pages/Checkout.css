@@ -1,0 +1,71 @@
+.checkout-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 32px;
+  box-sizing: border-box;
+}
+
+.checkout-title {
+  margin-bottom: 24px;
+  font-family: 'SF Pro Display', 'Poppins', Arial, sans-serif;
+}
+
+.checkout-content {
+  display: flex;
+  gap: 32px;
+  flex: 1;
+  overflow: hidden;
+}
+
+.checkout-column {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.form-card,
+.summary-card {
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+}
+
+.total-line {
+  display: flex;
+  justify-content: space-between;
+  font-size: 18px;
+  padding-top: 12px;
+}
+
+.horizontal-fields {
+  display: flex;
+  gap: 16px;
+}
+
+.horizontal-fields .ant-form-item {
+  flex: 1;
+}
+
+.checkout-container .ant-btn-primary {
+  background-color: #1a181d;
+  border-color: #1a181d;
+  font-weight: 600;
+  font-size: 16px;
+  height: 48px;
+  border-radius: 12px;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.checkout-container .ant-btn-primary:hover,
+.checkout-container .ant-btn-primary:focus {
+  background-color: #86868b;
+  border-color: #86868b;
+  outline: none;
+}
+
+.checkout-container .ant-btn-primary:active {
+  background-color: #86868b;
+  border-color: #86868b;
+  box-shadow: none;
+}

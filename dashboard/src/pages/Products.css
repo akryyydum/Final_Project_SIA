@@ -1,3 +1,4 @@
+/* Main Layout */
 .app-layout {
   min-height: 100vh;
   display: flex;
@@ -5,6 +6,7 @@
   background: #fff;
 }
 
+/* Header (if used) */
 .header {
   display: flex;
   align-items: center;
@@ -14,14 +16,18 @@
   border-bottom: 1px solid #ddd;
 }
 
+/* Shopping Cart Icon */
 .cart-icon {
   font-size: 1.5rem;
+  color: #555;
 }
 
+/* Logo */
 .logo img {
   height: 40px;
 }
 
+/* Search Bar + Filter */
 .search-bar-container {
   display: flex;
   align-items: center;
@@ -29,6 +35,7 @@
   padding: 1rem 2rem;
   background: #fafafa;
   border-bottom: 1px solid #eee;
+  gap: 1rem;
 }
 
 .search-bar {
@@ -40,16 +47,70 @@
 .filter-icon {
   font-size: 1.5rem;
   cursor: pointer;
+  color: #555;
+  transition: color 0.3s ease;
 }
 
+.filter-icon:hover {
+  color: #1890ff;
+}
+
+/* Main Content */
 .main-content {
   flex: 1;
+  padding: 2rem;
+  background-color: #f5f5f5;
 }
 
+/* Ant Design Card */
 .ant-card {
   border-radius: 8px;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+}
+
+.ant-card:hover {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.ant-card-cover img {
+  height: 200px;
+  object-fit: cover;
 }
 
 .ant-card-meta-description p {
   margin: 0.2rem 0;
+}
+
+/* Product Tags */
+.ant-tag {
+  margin-bottom: 0.5rem;
+}
+
+/* Ant Drawer */
+.ant-drawer-title {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+/* Ant Modal */
+.ant-modal {
+  transition: all 0.3s ease-in-out;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .search-bar-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-bar {
+    width: 100%;
+    margin: 0 0 1rem 0;
+  }
+
+  .filter-icon {
+    align-self: flex-end;
+  }
 }

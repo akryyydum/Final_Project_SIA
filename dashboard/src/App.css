@@ -1,7 +1,10 @@
 body{
-    font-family: 'Poppins', sans-serif !important; 
+    font-family: 'SF Pro Display', 'Poppins', Arial, sans-serif; 
     background-color: #f0f0f0;
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+}
+body, #root, .app-container {
+  padding-top: 64px; /* same as header height */
 }

@@ -4,11 +4,11 @@
   left: 0;
   right: 0;
   height: 64px;
+    z-index: 1000;
   padding: 0 40px;
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: saturate(180%) blur(20px);
   box-shadow: 0 1px 8px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
   display: flex;
   align-items: center;
   transition: all 0.3s ease;
@@ -48,6 +48,10 @@
 }
 
 .nav-menu {
+  display: flex !important; /* force flex layout */
+  align-items: center;
+  justify-content: flex-start;
+  gap: 24px; /* space between menu items */
   border-bottom: none !important;
   font-weight: 600;
   font-size: 14px;
@@ -55,6 +59,7 @@
   background: transparent !important;
   transition: all 0.3s ease;
 }
+
 
 .nav-menu .ant-menu-item {
   margin: 0 12px;
@@ -68,7 +73,24 @@
   transition: all 0.3s ease;
 }
 
+/* Hide all menu item links when header is collapsed */
 .apple-header.collapsed .ant-menu-item a {
+  display: none;
+}
+
+/* Keep cart menu link visible (icon + badge) when collapsed */
+.apple-header.collapsed .cart-menu-item a {
+  display: flex !important;
+  align-items: center;
+  pointer-events: auto;
+}
+.cart-menu-item {
+  white-space: nowrap; /* keep icon and badge on one line */
+  z-index: 10100; /* above other menu items */
+}
+
+/* Hide only the "Cart" text label on collapse */
+.apple-header.collapsed .cart-menu-item .cart-text {
   display: none;
 }
 
@@ -77,6 +99,7 @@
   color: #0071e3;
   border-bottom: 2px solid #0071e3;
 }
+
 
 .user-info {
   margin-right: 20px;

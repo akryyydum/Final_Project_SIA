@@ -1,96 +1,142 @@
 import React from 'react';
-import {
-  Container,
-  Typography,
-  Card,
-  CardContent,
-  CardActions,
-  IconButton,
-  Button,
-  Box,
-  Grid,
-  Divider,
-} from '@mui/material';
-import { Add, Remove, Delete } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import {
+  Row,
+  Col,
+  Card,
+  Typography,
+  Button,
+  Divider,
+  Space,
+  Image,
+  Modal,
+} from 'antd';  // <-- import Modal here
+import {
+  PlusOutlined,
+  MinusOutlined,
+  DeleteOutlined,
+} from '@ant-design/icons';
+import './Cart.css';
+
+const { Title, Text } = Typography;
+const { confirm } = Modal;
 
 const Cart = () => {
   const navigate = useNavigate();
   const { cartItems, increaseQty, decreaseQty, removeFromCart } = useCart();
 
   const total = cartItems.reduce(
-    (sum, item) => sum + ((typeof item.price === 'number' ? item.price : 0) * (item.quantity || 1)),
+    (sum, item) =>
+      sum +
+      (typeof item.price === 'number' ? item.price : 0) *
+        (item.quantity || 1),
     0
   );
 
-
-  console.log('Cart items in Cart page:', cartItems);
+  // New confirm remove function
+  const showConfirmRemove = (id) => {
+    confirm({
+      title: 'Are you sure you want to remove this item from your cart?',
+      okText: 'Yes',
+      okType: 'danger',
+      cancelText: 'No',
+      onOk() {
+        removeFromCart(id);
+      },
+      onCancel() {
+        // No action needed on cancel
+      },
+    });
+  };
 
   return (
-    <Container sx={{ mt: 5 }}>
-      <Typography variant="h4" gutterBottom>
-        Your Cart
-      </Typography>
+    <div className="cart-container">
+      <br />
+      <Title level={2} className="cart-title">Shopping Bag</Title>
 
       {cartItems.length === 0 ? (
-        <Typography>Your cart is empty.</Typography>
+        <Text className="empty-cart-text">Your cart is empty.</Text>
       ) : (
         <>
-          <Grid container spacing={2}>
+          <Row gutter={[24, 24]} justify="center">
             {cartItems.map((item, index) => (
-              <Grid xs={12} md={6} key={item.productId || item._id || index}>
-                <Card>
-                  <CardContent>
-                    <Box display="flex" gap={2}>
-                      <img
+              <Col xs={24} md={20} key={item.productId || item._id || index}>
+                <Card className="cart-item" bordered={false}>
+                  <div className="cart-item-box">
+                    <div className="cart-item-image-container">
+                      <Image
                         src={item.imageUrl}
                         alt={item.name}
-                        style={{ width: '100px', height: '100px', objectFit: 'contain' }}
+                        className="cart-item-image"
+                        preview={false}
                       />
-                      <Box flex="1">
-                        <Typography variant="h6">{item.name}</Typography>
-                        <Typography>
-                          ${typeof item.price === 'number' ? item.price.toFixed(2) : '0.00'}
-                        </Typography>
-                        <Typography>{item.description}</Typography>
-                        {/* etc. */}
-                      </Box>
-                    </Box>
-                  </CardContent>
-                  <CardActions sx={{ justifyContent: 'space-between', px: 2 }}>
-                    <Box display="flex" alignItems="center">
-                      <IconButton onClick={() => decreaseQty(item.productId || item._id)}>
-                        <Remove />
-                      </IconButton>
-                      <Typography>{item.quantity}</Typography>
-                      <IconButton onClick={() => increaseQty(item.productId || item._id)}>
-                        <Add />
-                      </IconButton>
-                    </Box>
-                    <IconButton
-                      onClick={() => removeFromCart(item.productId || item._id)}
-                      color="error"
-                    >
-                      <Delete />
-                    </IconButton>
-                  </CardActions>
+                    </div>
+
+                    <div className="cart-item-details">
+                      <Title level={5}>{item.name}</Title>
+                      <Text strong>₱{Number(item.price).toLocaleString()}</Text>
+                      <p className="cart-item-description">{item.description}</p>
+
+                      <div className="cart-qty-actions">
+                        <Space className="qty-buttons">
+                          <Button
+                            icon={<MinusOutlined />}
+                            size="small"
+                            shape="circle"
+                            onClick={() =>
+                              decreaseQty(item.productId || item._id)
+                            }
+                            disabled={item.quantity <= 1}
+                          />
+                          <Text>{item.quantity}</Text>
+                          <Button
+                            icon={<PlusOutlined />}
+                            size="small"
+                            shape="circle"
+                            onClick={() =>
+                              increaseQty(item.productId || item._id)
+                            }
+                          />
+                        </Space>
+
+<Button
+  danger
+  type="text"
+  icon={<DeleteOutlined />}
+  onClick={() => {
+    if (window.confirm('Are you sure you want to remove this item from your cart?')) {
+      removeFromCart(item.productId || item._id);
+    }
+  }}
+>
+  Remove
+</Button>
+
+                      </div>
+                    </div>
+                  </div>
                 </Card>
-              </Grid>
+              </Col>
             ))}
-          </Grid>
+          </Row>
 
-          <Divider sx={{ my: 4 }} />
+          <Divider className="cart-divider" />
 
-          <Box display="flex" justifyContent="space-between" alignItems="center">
-            <Typography variant="h6">Total: ${total.toFixed(2)}</Typography>
-            <Button variant="contained" color="primary" onClick={() => navigate('/checkout')}>
+          <div className="cart-total-container">
+            <Title level={4}>Total: ₱{total.toLocaleString()}</Title>
+            <Button
+              type="primary"
+              className="checkout-button"
+              size="large"
+              onClick={() => navigate('/checkout')}
+            >
               Proceed to Checkout
             </Button>
-          </Box>
+          </div>
         </>
       )}
-    </Container>
+    </div>
   );
 };
 
