@@ -1,38 +1,23 @@
 import React, { useState } from 'react';
-import {
-  Container,
-  Typography,
-  Button,
-  Alert,
-  Link as MuiLink,
-  TextField,
-  Paper,
-} from '@mui/material';
-
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import { Form, Input, Button, Typography, Alert, Card } from 'antd';
+import { useNavigate, Link } from 'react-router-dom';
 import { loginUser } from '../api/userApi';
 import { useAuth } from '../context/AuthContext';
 import './Login.css';
 import LoginImage from '../assets/login-at.jpg';
 
+const { Title, Text } = Typography;
+
 const Login = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState({ email: '', password: '' });
 
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const onFinish = async ({ email, password }) => {
     setError('');
     setLoading(true);
-
-    const { email, password } = form;
 
     if (!email || !password) {
       setError('Please fill in both email and password.');
@@ -43,7 +28,13 @@ const Login = () => {
     try {
       const res = await loginUser({ email, password });
       if (res.data && res.data.token) {
-        login(res.data.token);  // save token in context + localStorage
+        // Pass both token and user info to login if needed
+        login(res.data.token, {
+          userId: res.data.userId,
+          name: res.data.name,
+          role: res.data.role,
+          email: res.data.email,
+        });
         setLoading(false);
         navigate('/');
       } else {
@@ -62,67 +53,65 @@ const Login = () => {
       </div>
 
       <div className="login-form-section">
-        <Paper elevation={3} className="login-card">
-          <Typography variant="h4" className="login-title" gutterBottom>
-            Login
-          </Typography>
+        <Card bordered={false} className="login-card">
+          <Title level={2} className="login-title">Login</Title>
 
           {error && (
             <Alert
-              severity="error"
+              message={error}
+              type="error"
+              showIcon
+              closable
               onClose={() => setError('')}
               className="login-alert"
-            >
-              {error}
-            </Alert>
+            />
           )}
 
-          <form className="login-form" onSubmit={handleSubmit} noValidate>
-            <TextField
+          <Form
+            name="login"
+            layout="vertical"
+            onFinish={onFinish}
+            requiredMark={false}
+            className="login-form"
+          >
+            <Form.Item
               label="Email"
               name="email"
-              type="email"
-              value={form.email}
-              onChange={handleChange}
-              fullWidth
-              margin="normal"
-              required
-              autoComplete="email"
-              size="large"
-            />
-            <TextField
+              rules={[
+                { required: true, message: 'Please input your email!' },
+                { type: 'email', message: 'Please enter a valid email!' },
+              ]}
+            >
+              <Input size="large" placeholder="Email" autoComplete="email" />
+            </Form.Item>
+
+            <Form.Item
               label="Password"
               name="password"
-              type="password"
-              value={form.password}
-              onChange={handleChange}
-              fullWidth
-              margin="normal"
-              required
-              autoComplete="current-password"
-              size="large"
-            />
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              fullWidth
-              size="large"
-              disabled={loading}
-              className="login-button"
-              style={{ marginTop: 16 }}
+              rules={[{ required: true, message: 'Please input your password!' }]}
             >
-              {loading ? 'Logging in...' : 'Login'}
-            </Button>
-          </form>
+              <Input.Password size="large" placeholder="Password" autoComplete="current-password" />
+            </Form.Item>
 
-          <Typography variant="body2" align="center" style={{ marginTop: 16 }}>
+            <Form.Item>
+              <Button
+                type="primary"
+                htmlType="submit"
+                block
+                size="large"
+                loading={loading}
+                className="login-button"
+              >
+                Login
+              </Button>
+            </Form.Item>
+          </Form>
+
+          <Text className="signup-text">
             Don't have an account?{' '}
-            <MuiLink component={RouterLink} to="/signup" underline="hover">
-              Sign Up
-            </MuiLink>
-          </Typography>
-        </Paper>
+            <Link to="/signup" className="signup-link">Sign Up</Link>
+          </Text>
+        </Card>
       </div>
     </div>
   );
