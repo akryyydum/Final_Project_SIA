@@ -2,6 +2,7 @@ const Order = require('../models/Order');
 const Product = require('../models/Product');
 const axios = require('axios');
 const mongoose = require('mongoose');
+const { connect } = require('../../rabbitmq/connection'); // fixed path
 
 exports.createOrder = async (req, res) => {
   try {
@@ -66,6 +67,24 @@ exports.createOrder = async (req, res) => {
     });
 
     await order.save();
+
+    // Send order notification to RabbitMQ (admins receive, customers send)
+    try {
+      const channel = await connect();
+      const queue = 'order_notifications';
+      await channel.assertQueue(queue, { durable: false });
+      // Message includes order and a role field for clarity
+      channel.sendToQueue(queue, Buffer.from(JSON.stringify({
+        type: 'NEW_ORDER',
+        order,
+        from: 'customer',
+        to: 'admin'
+      })));
+      console.log('Order notification sent to RabbitMQ queue:', queue); // <-- add this line
+    } catch (err) {
+      console.error('Failed to send order notification to RabbitMQ:', err.message);
+    }
+
     res.status(201).json(order);
   } catch (err) {
     console.error('Order creation error:', err);
@@ -98,3 +117,8 @@ exports.updateOrder = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+// NOTE: Make sure your MongoDB connection string uses process.env.MONGO_URI
+// Use 'localhost' when running locally, and 'mongo-order' when running in Docker.
+
+// Ensure you are not hardcoding mongo-order or order-rabbitmq here.
