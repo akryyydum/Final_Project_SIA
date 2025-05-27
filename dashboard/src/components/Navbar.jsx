@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layout, Menu, Dropdown, Typography, Button } from 'antd';
 import {
   HomeOutlined,
@@ -29,10 +29,7 @@ const Navbar = () => {
       const payload = JSON.parse(atob(token.split('.')[1]));
       role = payload.role; name = payload.name;
     }
-  } catch {
-    console.error('Error parsing token:', localStorage.getItem('token'));
-    role = null; name = null;
-  }
+  } catch { }
 
   useEffect(() => {
     const handleScroll = () => {
@@ -42,47 +39,32 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const profileMenuItems = [
-    isAuthenticated && {
-      key: 'user-info',
-      label: `${name} (${role})`,
-      disabled: true,
-    },
-    !isAuthenticated && {
-      key: 'login',
-      icon: <LoginOutlined />,
-      label: <Link to="/login">Login</Link>,
-    },
-    isAuthenticated && {
-      key: 'logout',
-      icon: <LogoutOutlined />,
-      label: 'Logout',
-    },
-  ].filter(Boolean);
-
-  const handleMenuClick = ({ key }) => {
-    if (key === 'logout') {
-      logout();
-      navigate('/login');
-    }
-    setMenuVisible(false);
-  };
-
-  const profileMenu = {
-    items: profileMenuItems,
-    onClick: handleMenuClick,
-  };
+  const profileMenu = (
+    <Menu onClick={({ key }) => {
+      if (key === 'logout') {
+        logout();
+        navigate('/login');
+      }
+      setMenuVisible(false);
+    }}>
+      {isAuthenticated && <Menu.Item disabled>{name} ({role})</Menu.Item>}
+      {!isAuthenticated && <Menu.Item key="login" icon={<LoginOutlined />}><Link to="/login">Login</Link></Menu.Item>}
+      {isAuthenticated && <Menu.Item key="logout" icon={<LogoutOutlined />}>Logout</Menu.Item>}
+    </Menu>
+  );
 
   return (
-    <Header className="apple-header">
+    <Header
+      className={`apple-header ${collapsed ? 'collapsed' : ''}`}
+      onMouseEnter={() => setCollapsed(false)}
+      onMouseLeave={() => setCollapsed(true)}
+    >
       <div className="logo" onClick={() => navigate('/')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
         <img src="/aethertech-icon.png" alt="AetherTech Logo" className="logo-img" />
-        <Typography.Title level={3} style={{ margin: 0, fontWeight: 900 }}>AetherTech</Typography.Title>
+        <Typography.Title level={3} className="logo-text">AetherTech</Typography.Title>
       </div>
 
-
-
-      <Menu mode="horizontal" theme="light" selectable={false} className="nav-menu" style={{ flex: 1 }}>
+      <Menu mode="horizontal" theme="light" selectable={false} className="nav-menu">
         {isAuthenticated && <Menu.Item key="home" icon={<HomeOutlined />}><Link to="/">Home</Link></Menu.Item>}
         {isAuthenticated && role === 'customer' && <>
           <Menu.Item key="products" icon={<ShopOutlined />}><Link to="/products">Products</Link></Menu.Item>
@@ -95,32 +77,9 @@ const Navbar = () => {
         </>}
       </Menu>
 
-      {isAuthenticated && <Typography.Text type="secondary" className="user-info" ellipsis>{name} ({role})</Typography.Text>}
+      {isAuthenticated && <Typography.Text type="secondary" className="user-info">{name} ({role})</Typography.Text>}
 
-      {/* Cart Icon Button for Customers */}
-      {isAuthenticated && role === 'customer' && (
-        <Button
-          type="text"
-          className="cart-navbar-btn"
-          style={{ marginRight: 16 }}
-          onClick={() => navigate('/cart')}
-          icon={
-            <Badge count={0} size="small" offset={[0, 6]}>
-              <ShoppingCartOutlined style={{ fontSize: 24 }} />
-            </Badge>
-          }
-          aria-label="Cart"
-        />
-      )}
-
-      {/* Profile Dropdown */}
-      <Dropdown
-        menu={profileMenu}
-        trigger={['click']}
-        onOpenChange={setMenuVisible}
-        open={menuVisible}
-        placement="bottomRight"
-      >
+      <Dropdown overlay={profileMenu} trigger={['click']} onVisibleChange={setMenuVisible} visible={menuVisible}>
         <Button shape="circle" icon={<UserOutlined />} size="large" className="profile-btn" aria-label="User menu" />
       </Dropdown>
     </Header>

@@ -44,14 +44,13 @@ const Products = () => {
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
 
-  const [filtered, setFiltered] = useState(products);
+  const [filtered, setFiltered] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [priceRange, setPriceRange] = useState([0, 50000]);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedStorage, setSelectedStorage] = useState("");
   const [drawerVisible, setDrawerVisible] = useState(false);
 
-  // Admin modal state
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editValues, setEditValues] = useState({
     _id: "",
@@ -65,7 +64,9 @@ const Products = () => {
   });
 
   useEffect(() => {
-    let temp = products;
+    if (!products || products.length === 0) return;
+
+    let temp = [...products];
 
     if (searchTerm.trim()) {
       temp = temp.filter((p) =>
@@ -85,7 +86,6 @@ const Products = () => {
     setFiltered(temp);
   }, [searchTerm, priceRange, selectedCategories, selectedStorage, products]);
 
-  // Admin: open edit modal
   const handleEdit = (product) => {
     setEditValues({
       _id: product._id,
@@ -100,24 +100,24 @@ const Products = () => {
     setEditModalOpen(true);
   };
 
-  // Admin: handle input changes
   const handleChange = (e) => {
     setEditValues({ ...editValues, [e.target.name]: e.target.value });
   };
 
-  // Admin: save changes
   const handleSave = async () => {
     await editProduct(editValues._id, {
       ...editValues,
-      price: Number(editValues.price),
-      stock: Number(editValues.stock),
-      categories: editValues.categories.split(",").map((c) => c.trim()),
+      price: Number(editValues.price) || 0,
+      stock: Number(editValues.stock) || 0,
+      categories: editValues.categories
+        .split(",")
+        .map((c) => c.trim())
+        .filter(Boolean),
       storage: editValues.storage,
     });
     setEditModalOpen(false);
   };
 
-  // Admin: delete product
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
       await deleteProduct(id);
@@ -200,11 +200,9 @@ const Products = () => {
                         <img
                           alt={product.name}
                           src={
-                            product.imageUrl
-                              ? product.imageUrl.startsWith("data:")
-                                ? product.imageUrl
-                                : `data:image/jpeg;base64,${product.imageUrl}`
-                              : "/assets/default.png"
+                            product.imageUrl?.startsWith("data:")
+                              ? product.imageUrl
+                              : `data:image/jpeg;base64,${product.imageUrl}`
                           }
                           style={{ height: 200, objectFit: "cover" }}
                         />
@@ -230,7 +228,7 @@ const Products = () => {
                       <Card.Meta
                         title={product.name}
                         description={
-                          <div>
+                          <>
                             <p>₱{product.price?.toLocaleString()}</p>
                             <Tag color={product.stock > 0 ? "green" : "red"}>
                               {product.stock > 0
@@ -242,7 +240,7 @@ const Products = () => {
                               {(product.categories || []).join(", ") || "N/A"}
                             </p>
                             <p>Storage: {product.storage || "N/A"}</p>
-                          </div>
+                          </>
                         }
                       />
                     </Card>
@@ -258,7 +256,6 @@ const Products = () => {
         </Content>
       </Layout>
 
-      {/* Admin Edit Modal */}
       <AntModal
         title="Edit Product"
         open={editModalOpen}
@@ -312,9 +309,10 @@ const Products = () => {
         />
         <Select
           placeholder="Storage"
-          name="storage"
           value={editValues.storage}
-          onChange={(value) => setEditValues((v) => ({ ...v, storage: value }))}
+          onChange={(value) =>
+            setEditValues((prev) => ({ ...prev, storage: value }))
+          }
           style={{ width: "100%" }}
           allowClear
         >

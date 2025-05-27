@@ -1,6 +1,8 @@
-.app {
+.app-layout {
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background: #fff;
 }
 
 .header {
@@ -8,27 +10,46 @@
   align-items: center;
   justify-content: space-between;
   background: white;
-  padding: 1rem;
+  padding: 1rem 2rem;
   border-bottom: 1px solid #ddd;
 }
 
+.cart-icon {
+  font-size: 1.5rem;
+}
+
+.logo img {
+  height: 40px;
+}
+
+.search-bar-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  background: #fafafa;
+  border-bottom: 1px solid #eee;
+}
+
 .search-bar {
-  width: 50%;
-  padding: 0.5rem;
+  flex: 1;
+  max-width: 600px;
+  margin-right: 1rem;
+}
+
+.filter-icon {
+  font-size: 1.5rem;
+  cursor: pointer;
 }
 
 .main-content {
-  display: flex;
-  padding: 1rem;
-}
-
-.product-area {
   flex: 1;
 }
 
-.product-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
+.ant-card {
+  border-radius: 8px;
+}
+
+.ant-card-meta-description p {
+  margin: 0.2rem 0;
 }
