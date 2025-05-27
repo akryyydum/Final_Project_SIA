@@ -1,16 +1,21 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import {
-  Container,
+  Layout,
   Typography,
   Card,
-  CardContent,
-  List,
-  ListItem,
-  ListItemText,
+  Collapse,
+  Badge,
   Divider,
-} from "@mui/material";
+  Empty,
+  message,
+} from "antd";
 import { useAuth } from "../context/AuthContext";
+import "./CheckoutList.css";
+
+const { Content } = Layout;
+const { Title, Text } = Typography;
+const { Panel } = Collapse;
 
 const CheckoutList = () => {
   const [orders, setOrders] = useState([]);
@@ -22,52 +27,68 @@ const CheckoutList = () => {
         const res = await axios.get("http://localhost:5002/api/orders", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setOrders(res.data);
-      } catch {
-        // Handle error
+        // Optional: Sort by newest first
+        const sorted = res.data.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+        setOrders(sorted);
+      } catch (error) {
+        message.error("Failed to fetch orders.");
       }
     };
+
     if (user?.role === "admin") fetchOrders();
   }, [token, user]);
 
   if (user?.role !== "admin") {
-    return <Typography>You are not authorized to view this page.</Typography>;
+    return <Text type="danger">You are not authorized to view this page.</Text>;
   }
 
   return (
-    <Container maxWidth="md" sx={{ mt: 5 }}>
-      <Typography variant="h4" gutterBottom>
-        All Orders
-      </Typography>
-      {orders.map((order, idx) => (
-        <Card key={order._id || idx} sx={{ mb: 3 }}>
-          <CardContent>
-            <Typography variant="h6">
-              Order by: {order.customer?.name}
-            </Typography>
-            <Typography>Email: {order.customer?.email}</Typography>
-            <Typography>Address: {order.customer?.address}</Typography>
-            <List>
-              {order.items.map((item, i) => (
-                <ListItem key={i} divider>
-                  <ListItemText
-                    primary={`${item.productName || "Unknown"} x${item.quantity}`}
-                    secondary={`$${item.productPrice?.toFixed(2) || 0} each`}
-                  />
-                </ListItem>
-              ))}
-            </List>
-            <Divider sx={{ my: 1 }} />
-            <Typography variant="subtitle1">
-              Total: ${order.total?.toFixed(2)}
-            </Typography>
-            <Typography variant="caption">
-              Placed: {new Date(order.createdAt).toLocaleString()}
-            </Typography>
-          </CardContent>
-        </Card>
-      ))}
-    </Container>
+    <Layout className="checkout-container">
+      <Content>
+        <Title level={2} className="checkout-title">All Orders</Title>
+
+        {orders.length === 0 ? (
+          <Empty description="No orders found." />
+        ) : (
+          orders.map((order) => (
+            <Card key={order._id} className="checkout-card">
+              <div className="checkout-card-header">
+                <Title level={5}>Order by: {order.customer?.name}</Title>
+                <Badge
+                  status={order.status === "Delivered" ? "success" : "processing"}
+                  text={order.status || "Pending"}
+                />
+              </div>
+              <div className="checkout-details">
+                <Text block>Email: {order.customer?.email}</Text>
+                <br />
+                <Text block>Address: {order.customer?.address}</Text>
+              </div>
+              <Collapse ghost>
+                <Panel header="View Items" key="1">
+                  {order.items.map((item, i) => (
+                    <div key={i} style={{ marginBottom: 12 }}>
+                      <Text>
+                        {item.productName || "Unknown"} x{item.quantity} — $
+                        {item.productPrice?.toFixed(2) || 0} each
+                      </Text>
+                    </div>
+                  ))}
+                </Panel>
+              </Collapse>
+              <Divider />
+              <Text className="checkout-total">Total: ${order.total?.toFixed(2)}</Text>
+              <br />
+              <Text className="checkout-timestamp">
+                Placed: {new Date(order.createdAt).toLocaleString()}
+              </Text>
+            </Card>
+          ))
+        )}
+      </Content>
+    </Layout>
   );
 };
 
