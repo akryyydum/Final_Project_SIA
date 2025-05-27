@@ -29,7 +29,9 @@ const Navbar = () => {
       const payload = JSON.parse(atob(token.split('.')[1]));
       role = payload.role; name = payload.name;
     }
-  } catch { }
+  } catch {  
+    console.error('Error parsing token payload');
+  }
 
   useEffect(() => {
     const handleScroll = () => {
@@ -73,7 +75,7 @@ const Navbar = () => {
         {isAuthenticated && role === 'admin' && <>
           <Menu.Item key="users" icon={<TeamOutlined />}><Link to="/users">Users</Link></Menu.Item>
           <Menu.Item key="add-product" icon={<PlusSquareOutlined />}><Link to="/admin/add-product">Add Product</Link></Menu.Item>
-          <Menu.Item key="orders" icon={<ShoppingCartOutlined />}><Link to="/checkout-list">Orders</Link></Menu.Item>
+          <Menu.Item key="orders" icon={<ShoppingCartOutlined />}><Link to="/admin/orders">Orders</Link></Menu.Item>
         </>}
       </Menu>
 
