@@ -151,18 +151,18 @@ const Checkout = () => {
           <Card>
             <CardContent>
               <List>
-                {cartItems.map((item, index) => (
-                  <ListItem key={item.productId || item._id || index} divider>
-                    <ListItemText
-                      primary={`${item.name} x${item.quantity}`}
-                      secondary={`$${item.price?.toFixed(2) || 0} each`}
-                    />
-                    <Typography variant="body2">
-                      ${(item.price * (item.quantity || 1)).toFixed(2)}
-                    </Typography>
-                  </ListItem>
-                ))}
-              </List>
+                  {cartItems.map((item, index) => (
+                    <ListItem key={item.productId || item._id || index} divider>
+                      <ListItemText
+                        primary={`${item.name || "Unknown"} x${item.quantity}`}
+                        secondary={`$${(item.price ?? 0).toFixed(2)} each`}
+                      />
+                      <Typography variant="body2">
+                        ${(item.price * (item.quantity || 1)).toFixed(2)}
+                      </Typography>
+                    </ListItem>
+                  ))}
+                </List>
               <Divider sx={{ my: 2 }} />
               <Box display="flex" justifyContent="space-between">
                 <Typography variant="subtitle1">Total</Typography>
