@@ -12,7 +12,7 @@ exports.createOrder = async (req, res) => {
 
 exports.getOrders = async (req, res) => {
   try {
-    const orders = await Order.find();
+    const orders = await Order.find().populate('items.productId'); // <-- this populates product details
     res.json(orders);
   } catch (err) {
     res.status(500).json({ error: err.message });

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Form, Input, Button, Typography, Alert, Card } from 'antd';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { loginUser } from '../api/userApi';
 import { useAuth } from '../context/AuthContext';
 import './Login.css';
@@ -28,7 +28,13 @@ const Login = () => {
     try {
       const res = await loginUser({ email, password });
       if (res.data && res.data.token) {
-        login(res.data.token);
+        // Pass both token and user info to login if needed
+        login(res.data.token, {
+          userId: res.data.userId,
+          name: res.data.name,
+          role: res.data.role,
+          email: res.data.email,
+        });
         setLoading(false);
         navigate('/');
       } else {
@@ -103,7 +109,7 @@ const Login = () => {
 
           <Text className="signup-text">
             Don't have an account?{' '}
-            <a href="/signup" className="signup-link">Sign Up</a>
+            <Link to="/signup" className="signup-link">Sign Up</Link>
           </Text>
         </Card>
       </div>

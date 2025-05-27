@@ -19,7 +19,13 @@ const Cart = () => {
   const navigate = useNavigate();
   const { cartItems, increaseQty, decreaseQty, removeFromCart } = useCart();
 
-  const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const total = cartItems.reduce(
+    (sum, item) => sum + ((typeof item.price === 'number' ? item.price : 0) * (item.quantity || 1)),
+    0
+  );
+
+
+  console.log('Cart items in Cart page:', cartItems);
 
   return (
     <Container sx={{ mt: 5 }}>
@@ -44,7 +50,11 @@ const Cart = () => {
                       />
                       <Box flex="1">
                         <Typography variant="h6">{item.name}</Typography>
-                        <Typography>${item.price.toFixed(2)}</Typography>
+                        <Typography>
+                          ${typeof item.price === 'number' ? item.price.toFixed(2) : '0.00'}
+                        </Typography>
+                        <Typography>{item.description}</Typography>
+                        {/* etc. */}
                       </Box>
                     </Box>
                   </CardContent>

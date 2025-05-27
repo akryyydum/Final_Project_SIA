@@ -1,15 +1,11 @@
 const express = require('express');
-const authMiddleware = require('../middleware/authMiddleware');
-const {
-  getCartByUser,
-  updateCart,
-} = require('../controllers/cartController');
-
 const router = express.Router();
+const authMiddleware = require('../middleware/authMiddleware');
+const { getCart, updateCart } = require('../controllers/cartController');
 
-router.use(authMiddleware); // protect all routes below
+router.use(authMiddleware); // Protect all cart routes
 
-router.get('/me', getCartByUser);
+router.get('/me', getCart);
 router.put('/me', updateCart);
 
 module.exports = router;
