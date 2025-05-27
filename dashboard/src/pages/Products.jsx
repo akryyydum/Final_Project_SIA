@@ -10,13 +10,14 @@ import {
   Col,
   Slider,
   Checkbox,
-  Select,
   Tag,
   Empty,
   Drawer,
   Button,
   Tooltip,
   Modal as AntModal,
+  Pagination,
+  Form,
 } from "antd";
 import {
   ShoppingCartOutlined,
@@ -27,16 +28,18 @@ import {
 import "../pages/Products.css";
 import ProductCard from "../components/ProductCard";
 
-const { Header, Content } = Layout;
+const { Content } = Layout;
 const { Search } = Input;
 
-const categoryOptions = ["iPhone", "iPad", "MacBook", "Apple Watch"];
+const categoryOptions = [
+  "iPhone",
+  "iPad",
+  "MacBook",
+  "Apple Watch",
+  "AirPods",
 
-const storageOptions = [
-  { label: "64GB", value: "64GB" },
-  { label: "128GB", value: "128GB" },
-  { label: "256GB", value: "256GB" },
-  { label: "512GB", value: "512GB" },
+  "HomePod",
+  "Accessories",
 ];
 
 const Products = () => {
@@ -46,9 +49,8 @@ const Products = () => {
 
   const [filtered, setFiltered] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [priceRange, setPriceRange] = useState([0, 50000]);
+  const [priceRange, setPriceRange] = useState([1000, 300000]);
   const [selectedCategories, setSelectedCategories] = useState([]);
-  const [selectedStorage, setSelectedStorage] = useState("");
   const [drawerVisible, setDrawerVisible] = useState(false);
 
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -60,49 +62,48 @@ const Products = () => {
     stock: "",
     imageUrl: "",
     categories: "",
-    storage: "",
   });
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 8;
+
   useEffect(() => {
-    if (!products || products.length === 0) return;
+    if (!products?.length) return;
 
     let temp = [...products];
 
-    if (searchTerm.trim()) {
+    if (searchTerm.trim())
       temp = temp.filter((p) =>
         p.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
-    }
 
     temp = temp.filter(
       (p) =>
         p.price >= priceRange[0] &&
         p.price <= priceRange[1] &&
         (selectedCategories.length === 0 ||
-          (p.categories || []).some((cat) => selectedCategories.includes(cat))) &&
-        (!selectedStorage || p.storage === selectedStorage)
+          (p.categories || []).some((cat) => selectedCategories.includes(cat)))
     );
 
     setFiltered(temp);
-  }, [searchTerm, priceRange, selectedCategories, selectedStorage, products]);
+    setCurrentPage(1);
+  }, [searchTerm, priceRange, selectedCategories, products]);
 
-  const handleEdit = (product) => {
+  const handleEdit = (p) => {
     setEditValues({
-      _id: product._id,
-      name: product.name,
-      description: product.description,
-      price: product.price,
-      stock: product.stock,
-      imageUrl: product.imageUrl,
-      categories: (product.categories || []).join(", "),
-      storage: product.storage || "",
+      _id: p._id,
+      name: p.name,
+      description: p.description,
+      price: p.price,
+      stock: p.stock,
+      imageUrl: p.imageUrl,
+      categories: (p.categories || []).join(", "),
     });
     setEditModalOpen(true);
   };
 
-  const handleChange = (e) => {
-    setEditValues({ ...editValues, [e.target.name]: e.target.value });
-  };
+  const handleChange = (e) =>
+    setEditValues((v) => ({ ...v, [e.target.name]: e.target.value }));
 
   const handleSave = async () => {
     await editProduct(editValues._id, {
@@ -113,148 +114,161 @@ const Products = () => {
         .split(",")
         .map((c) => c.trim())
         .filter(Boolean),
-      storage: editValues.storage,
     });
     setEditModalOpen(false);
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this product?")) {
+    if (window.confirm("Are you sure you want to delete this product?"))
       await deleteProduct(id);
-    }
   };
+
+  const paginated = filtered.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+
+  const filtersActive =
+    selectedCategories.length > 0 ||
+    priceRange[0] !== 1000 ||
+    priceRange[1] !== 300000;
 
   return (
     <Layout className="app-layout">
-      <Header className="header">
-        <div className="logo">
-          <img src="/logo.png" alt="Logo" />
-        </div>
-        <Badge count={3}>
-          <ShoppingCartOutlined className="cart-icon" />
-        </Badge>
-      </Header>
-
-      <div className="search-bar-container">
+      <br /><br /><br />
+      <div className="search-bar-container" style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
         <Search
-          placeholder="Search gadgets..."
+          placeholder="Search for gadgets..."
           enterButton
-          onSearch={(value) => setSearchTerm(value)}
+          onSearch={setSearchTerm}
           className="search-bar"
+          allowClear
         />
+
         <Button
           type="text"
-          icon={<FilterOutlined className="filter-icon" />}
+          icon={<FilterOutlined />}
           onClick={() => setDrawerVisible(true)}
         />
+
+        {filtersActive && (
+          <Button
+            onClick={() => {
+              setSelectedCategories([]);
+              setPriceRange([1000, 300000]);
+            }}
+          >
+            Clear Filters
+          </Button>
+        )}
       </div>
 
-      <Drawer
-        title="Filter Products"
-        placement="right"
-        onClose={() => setDrawerVisible(false)}
-        open={drawerVisible}
-      >
-        <h3>Price Range (₱)</h3>
-        <Slider
-          range
-          value={priceRange}
-          max={50000}
-          step={1000}
-          onChange={setPriceRange}
-        />
-
-        <h3>Category</h3>
-        <Checkbox.Group
-          options={categoryOptions}
-          value={selectedCategories}
-          onChange={setSelectedCategories}
-        />
-
-        <h3 style={{ marginTop: "1rem" }}>Storage</h3>
-        <Select
-          placeholder="Select storage"
-          style={{ width: "100%" }}
-          value={selectedStorage}
-          onChange={setSelectedStorage}
-          allowClear
-        >
-          {storageOptions.map((opt) => (
-            <Select.Option key={opt.value} value={opt.value}>
-              {opt.label}
-            </Select.Option>
-          ))}
-        </Select>
-      </Drawer>
-
-      <Layout className="main-content">
-        <Content style={{ padding: "2rem", background: "#f5f5f5" }}>
-          {filtered.length ? (
-            <Row gutter={[16, 16]}>
-              {filtered.map((product) => (
-                <Col xs={24} sm={12} md={8} lg={6} key={product._id}>
-                  {isAdmin ? (
-                    <Card
-                      hoverable
-                      cover={
-                        <img
-                          alt={product.name}
-                          src={
-                            product.imageUrl?.startsWith("data:")
-                              ? product.imageUrl
-                              : `data:image/jpeg;base64,${product.imageUrl}`
-                          }
-                          style={{ height: 200, objectFit: "cover" }}
-                        />
-                      }
-                      actions={[
-                        <Tooltip title="Edit" key="edit">
-                          <Button
-                            icon={<EditOutlined />}
-                            onClick={() => handleEdit(product)}
-                            type="link"
-                          />
-                        </Tooltip>,
-                        <Tooltip title="Delete" key="delete">
-                          <Button
-                            icon={<DeleteOutlined />}
-                            onClick={() => handleDelete(product._id)}
-                            type="link"
-                            danger
-                          />
-                        </Tooltip>,
-                      ]}
-                    >
-                      <Card.Meta
-                        title={product.name}
-                        description={
-                          <>
-                            <p>₱{product.price?.toLocaleString()}</p>
-                            <Tag color={product.stock > 0 ? "green" : "red"}>
-                              {product.stock > 0
-                                ? `${product.stock} in stock`
-                                : "Out of stock"}
-                            </Tag>
-                            <p>
-                              Category:{" "}
-                              {(product.categories || []).join(", ") || "N/A"}
-                            </p>
-                            <p>Storage: {product.storage || "N/A"}</p>
-                          </>
-                        }
-                      />
-                    </Card>
-                  ) : (
-                    <ProductCard {...product} />
-                  )}
-                </Col>
-              ))}
-            </Row>
-          ) : (
-            <Empty description="No matching products found" />
+      {filtersActive && (
+        <div style={{ margin: "1rem 0", display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+          {(priceRange[0] !== 1000 || priceRange[1] !== 300000) && (
+            <Tag color="blue">
+              Price: ₱{priceRange[0].toLocaleString()} - ₱{priceRange[1].toLocaleString()}
+            </Tag>
           )}
-        </Content>
-      </Layout>
+
+          {selectedCategories.map((cat) => (
+            <Tag color="green" key={cat}>{cat}</Tag>
+          ))}
+        </div>
+      )}
+
+      <Drawer
+  title="Filter Apple Products"
+  placement="right"
+  onClose={() => setDrawerVisible(false)}
+  open={drawerVisible}
+>
+  <h3>Price Range (₱)</h3>
+  <Slider
+    range
+    min={1000}
+    max={300000}
+    step={1000}
+    value={priceRange}
+    onChange={setPriceRange}
+  />
+
+  <h3>Apple Products</h3>
+  <Checkbox.Group
+    options={categoryOptions}
+    value={selectedCategories}
+    onChange={setSelectedCategories}
+    style={{ display: "flex", flexDirection: "column", gap: 12, fontSize: 18 }}
+  />
+</Drawer>
+
+      <Content style={{ padding: "2rem", background: "#f5f5f5" }}>
+        {paginated.length ? (
+          <Row gutter={[16, 16]}>
+            {paginated.map((p) => (
+              <Col xs={24} sm={12} md={8} lg={6} key={p._id}>
+                {isAdmin ? (
+                  <Card
+                    hoverable
+                    cover={
+                      <img
+                        alt={p.name}
+                        src={
+                          p.imageUrl?.startsWith("data:")
+                            ? p.imageUrl
+                            : `data:image/jpeg;base64,${p.imageUrl}`
+                        }
+                        style={{ height: 200, objectFit: "cover" }}
+                      />
+                    }
+                    actions={[
+                      <Tooltip title="Edit" key="edit">
+                        <Button icon={<EditOutlined />} onClick={() => handleEdit(p)} type="link" />
+                      </Tooltip>,
+                      <Tooltip title="Delete" key="delete">
+                        <Button
+                          icon={<DeleteOutlined />}
+                          onClick={() => handleDelete(p._id)}
+                          type="link"
+                          danger
+                        />
+                      </Tooltip>,
+                    ]}
+                  >
+                    <Card.Meta
+                      title={p.name}
+                      description={
+                        <>
+                          <p>₱{p.price?.toLocaleString()}</p>
+                          <Tag color={p.stock > 0 ? "green" : "red"}>
+                            {p.stock > 0 ? `${p.stock} in stock` : "Out of stock"}
+                          </Tag>
+                          <p>Category: {(p.categories || []).join(", ") || "N/A"}</p>
+                        </>
+                      }
+                    />
+                  </Card>
+                ) : (
+                  <ProductCard {...p} />
+                )}
+              </Col>
+            ))}
+          </Row>
+        ) : (
+          <Empty description="No matching products found" />
+        )}
+
+        {filtered.length > pageSize && (
+          <div style={{ textAlign: "center", marginTop: "2rem" }}>
+            <Pagination
+              current={currentPage}
+              pageSize={pageSize}
+              total={filtered.length}
+              onChange={setCurrentPage}
+            />
+          </div>
+        )}
+      </Content>
 
       <AntModal
         title="Edit Product"
@@ -263,65 +277,32 @@ const Products = () => {
         onOk={handleSave}
         okText="Save"
       >
-        <Input
-          placeholder="Name"
-          name="name"
-          value={editValues.name}
-          onChange={handleChange}
-          style={{ marginBottom: 8 }}
-        />
-        <Input
-          placeholder="Description"
-          name="description"
-          value={editValues.description}
-          onChange={handleChange}
-          style={{ marginBottom: 8 }}
-        />
-        <Input
-          placeholder="Price"
-          name="price"
-          type="number"
-          value={editValues.price}
-          onChange={handleChange}
-          style={{ marginBottom: 8 }}
-        />
-        <Input
-          placeholder="Stock"
-          name="stock"
-          type="number"
-          value={editValues.stock}
-          onChange={handleChange}
-          style={{ marginBottom: 8 }}
-        />
-        <Input
-          placeholder="Image URL or Base64"
-          name="imageUrl"
-          value={editValues.imageUrl}
-          onChange={handleChange}
-          style={{ marginBottom: 8 }}
-        />
-        <Input
-          placeholder="Categories (comma separated)"
-          name="categories"
-          value={editValues.categories}
-          onChange={handleChange}
-          style={{ marginBottom: 8 }}
-        />
-        <Select
-          placeholder="Storage"
-          value={editValues.storage}
-          onChange={(value) =>
-            setEditValues((prev) => ({ ...prev, storage: value }))
-          }
-          style={{ width: "100%" }}
-          allowClear
-        >
-          {storageOptions.map((opt) => (
-            <Select.Option key={opt.value} value={opt.value}>
-              {opt.label}
-            </Select.Option>
+        <Form layout="vertical">
+          {["name", "description", "price", "stock", "imageUrl", "categories"].map((field) => (
+            <Form.Item key={field} label={field.charAt(0).toUpperCase() + field.slice(1)}>
+              {field === "categories" ? (
+                <Input
+                  name={field}
+                  value={editValues[field]}
+                  onChange={handleChange}
+                />
+              ) : field === "price" || field === "stock" ? (
+                <Input
+                  name={field}
+                  type="number"
+                  value={editValues[field]}
+                  onChange={handleChange}
+                />
+              ) : (
+                <Input
+                  name={field}
+                  value={editValues[field]}
+                  onChange={handleChange}
+                />
+              )}
+            </Form.Item>
           ))}
-        </Select>
+        </Form>
       </AntModal>
     </Layout>
   );

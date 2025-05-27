@@ -1,178 +1,172 @@
 import React, { useState } from 'react';
+import { Form, Input, Button, Row, Col, Typography, Alert, Card, List, Divider } from 'antd';
+import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
-import {
-  Container,
-  Typography,
-  TextField,
-  Button,
-  Grid,
-  Card,
-  CardContent,
-  Divider,
-  Box,
-  List,
-  ListItem,
-  ListItemText,
-  Alert,
-} from '@mui/material';
-import { useCart } from '../context/CartContext'; // <-- Import this
-import { useAuth } from '../context/AuthContext'; // Add this import
+import './Checkout.css';
+
+const { Title } = Typography;
 
 const Checkout = () => {
-  const [orderInfo, setOrderInfo] = useState({
-    name: '',
-    email: '',
-    address: '',
-  });
-
+  const [form] = Form.useForm();
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  const { cartItems, clearCart } = useCart(); // <-- add clearCart
-  const { user } = useAuth(); // Get the logged-in user
+  const { cartItems, clearCart } = useCart();
+  const { user } = useAuth();
 
   const total = cartItems.reduce(
     (sum, item) => sum + (item.price * (item.quantity || 1)),
     0
   );
 
-  const handleChange = (e) => {
-    setOrderInfo({ ...orderInfo, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const { name, email, address } = orderInfo;
-
-    if (!name || !email || !address) {
-      setError('Please fill in all fields');
-      setSuccess('');
-      return;
-    }
+  const onFinish = async (values) => {
+    const { name, email, street, city, state, zip, country } = values;
+    const fullAddress = `${street}, ${city}, ${state} ${zip}, ${country}`;
 
     try {
-      // Map cartItems to the required format
       const items = cartItems.map(item => ({
-        productId: item._id, // Always use _id if that's what your cart uses
+        productId: item._id,
         quantity: item.quantity || 1
       }));
 
-      console.log({
+      await axios.post('http://localhost:5002/api/orders', {
         userId: user?.userId,
         items,
         total,
         createdAt: new Date(),
-        customer: { name, email, address }
+        customer: {
+          name,
+          email,
+          address: fullAddress
+        }
       });
 
-      await axios.post("http://localhost:5002/api/orders", {
-        userId: user?.userId, // must match your AuthContext user object
-        items,
-        total,
-        createdAt: new Date(),
-        customer: { name, email, address } // <-- add this line
-      });
-      setError('');
       setSuccess('Order placed successfully!');
-      clearCart(); // <-- clear the cart here
-    } catch  {
+      setError('');
+      clearCart();
+      form.resetFields();
+    } catch (err) {
+      console.error(err);
       setError('Failed to place order');
       setSuccess('');
     }
   };
 
   return (
-    <Container maxWidth="md" sx={{ mt: 5 }}>
-      <Typography variant="h4" gutterBottom>
-        Checkout
-      </Typography>
+    <div className="checkout-container">
+      <br />
+      <Title level={2} className="checkout-title">Checkout</Title>
 
-      <Grid container spacing={4}>
+      <Row gutter={32}>
         {/* Billing Form */}
-        <Grid item xs={12} md={6}>
-          <Typography variant="h6" gutterBottom>
-            Billing Information
-          </Typography>
+        <Col xs={24} md={12}>
+          <Title level={4}>Billing Information</Title>
 
-          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-          {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
+          {error && <Alert type="error" message={error} showIcon style={{ marginBottom: 16 }} />}
+          {success && <Alert type="success" message={success} showIcon style={{ marginBottom: 16 }} />}
 
-          <Box component="form" onSubmit={handleSubmit} noValidate>
-            <TextField
-              fullWidth
-              label="Full Name"
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={onFinish}
+            requiredMark={false}
+          >
+            <Form.Item
               name="name"
-              value={orderInfo.name}
-              onChange={handleChange}
-              margin="normal"
-              required
-            />
-            <TextField
-              fullWidth
-              label="Email"
-              name="email"
-              value={orderInfo.email}
-              onChange={handleChange}
-              margin="normal"
-              required
-              type="email"
-            />
-            <TextField
-              fullWidth
-              label="Shipping Address"
-              name="address"
-              value={orderInfo.address}
-              onChange={handleChange}
-              margin="normal"
-              required
-              multiline
-              rows={3}
-            />
-
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              fullWidth
-              sx={{ mt: 2 }}
+              label="Full Name"
+              rules={[{ required: true, message: 'Please enter your full name' }]}
             >
-              Place Order
-            </Button>
-          </Box>
-        </Grid>
+              <Input size="large" placeholder="Felix C. Leid Jr." />
+            </Form.Item>
+
+            <Form.Item
+              name="email"
+              label="Email"
+              rules={[{ required: true, type: 'email', message: 'Please enter a valid email' }]}
+            >
+              <Input size="large" placeholder="cardoxlolaflora@apple.com" />
+            </Form.Item>
+
+            <Form.Item
+              name="street"
+              label="Street Address"
+              rules={[{ required: true, message: 'Enter street address' }]}
+            >
+              <Input size="large" placeholder="1 Apple Park Way" />
+            </Form.Item>
+
+            <Form.Item
+              name="city"
+              label="City"
+              rules={[{ required: true, message: 'Enter city' }]}
+            >
+              <Input size="large" placeholder="Bayombong" />
+            </Form.Item>
+
+            <Row gutter={12}>
+              <Col span={12}>
+                <Form.Item
+                  name="state"
+                  label="State"
+                  rules={[{ required: true, message: 'Enter state' }]}
+                >
+                  <Input size="large" placeholder="Nueva Vizcaya" />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  name="zip"
+                  label="ZIP Code"
+                  rules={[{ required: true, message: 'Enter ZIP code' }]}
+                >
+                  <Input size="large" placeholder="3700" />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Form.Item
+              name="country"
+              label="Country"
+              rules={[{ required: true, message: 'Enter country' }]}
+            >
+              <Input size="large" placeholder="Philippines" />
+            </Form.Item>
+
+            <Form.Item>
+              <Button type="primary" htmlType="submit" size="large" block>
+                Place Order
+              </Button>
+            </Form.Item>
+          </Form>
+        </Col>
 
         {/* Order Summary */}
-        <Grid item xs={12} md={6}>
-          <Typography variant="h6" gutterBottom>
-            Order Summary
-          </Typography>
-
-          <Card>
-            <CardContent>
-              <List>
-                  {cartItems.map((item, index) => (
-                    <ListItem key={item.productId || item._id || index} divider>
-                      <ListItemText
-                        primary={`${item.name || "Unknown"} x${item.quantity}`}
-                        secondary={`$${(item.price ?? 0).toFixed(2)} each`}
-                      />
-                      <Typography variant="body2">
-                        ${(item.price * (item.quantity || 1)).toFixed(2)}
-                      </Typography>
-                    </ListItem>
-                  ))}
-                </List>
-              <Divider sx={{ my: 2 }} />
-              <Box display="flex" justifyContent="space-between">
-                <Typography variant="subtitle1">Total</Typography>
-                <Typography variant="subtitle1">${total.toFixed(2)}</Typography>
-              </Box>
-            </CardContent>
+        <Col xs={24} md={12}>
+          <Title level={4}>Order Summary</Title>
+          <Card className="summary-card">
+            <List
+              itemLayout="horizontal"
+              dataSource={cartItems}
+              renderItem={(item) => (
+                <List.Item>
+                  <List.Item.Meta
+                    title={`${item.name} x${item.quantity}`}
+                    description={`$${item.price?.toFixed(2)} each`}
+                  />
+                  <div>${(item.price * (item.quantity || 1)).toFixed(2)}</div>
+                </List.Item>
+              )}
+            />
+            <Divider />
+            <div className="total-line">
+              <span>Total:</span>
+              <strong>${total.toFixed(2)}</strong>
+            </div>
           </Card>
-        </Grid>
-      </Grid>
-    </Container>
+        </Col>
+      </Row>
+    </div>
   );
 };
 
