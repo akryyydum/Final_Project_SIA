@@ -25,10 +25,26 @@ const Checkout = () => {
     const fullAddress = `${street}, ${city}, ${state} ${zip}, ${country}`;
 
     try {
-      const items = cartItems.map(item => ({
-        productId: item._id,
-        quantity: item.quantity || 1
-      }));
+      // Log cartItems for debugging
+      console.log("cartItems:", cartItems);
+
+      // Always use item.productId if present, otherwise fallback to item._id
+      const items = cartItems.map(item => {
+  const productId = item.productId ?? item._id ?? null;
+
+  if (!productId) {
+    console.warn('Missing productId and _id for cart item:', item);
+  }
+
+  return {
+    productId,
+    productName: item.name,
+    productPrice: item.price,
+    quantity: item.quantity || 1
+  };
+});
+
+
 
       // Log for debugging
       console.log("Order items to send:", items);

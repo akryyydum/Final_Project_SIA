@@ -1,35 +1,57 @@
 const Order = require('../models/Order');
 const Product = require('../models/Product');
 const axios = require('axios');
+const mongoose = require('mongoose');
 
 exports.createOrder = async (req, res) => {
   try {
-    const { userId, items, total, status, customer } = req.body;
+    const { userId, items, total, status = 'pending', customer } = req.body;
 
-    // Check for missing productId in any item
-    const invalidItem = items.find(item => !item.productId);
-    if (invalidItem) {
-      return res.status(400).json({ error: "Each order item must have a valid productId." });
+    const normalizedItems = items.map(item => {
+      let pid = item.productId;
+      if (typeof pid === 'string' && mongoose.Types.ObjectId.isValid(pid)) {
+        pid = new mongoose.Types.ObjectId(pid);
+      } else if (pid && pid._bsontype === 'ObjectID') {
+        // already valid
+      } else {
+        pid = null;
+      }
+
+      return {
+        ...item,
+        productId: pid
+      };
+    });
+
+    // Check for invalid or null productId
+    const invalid = normalizedItems.find(item => !item.productId);
+    if (invalid) {
+      return res.status(400).json({ error: "One or more order items are missing a valid productId." });
     }
 
     const itemsWithNames = await Promise.all(
-      items.map(async (item) => {
-        let productName = "Unknown";
-        let productPrice = 0;
-        try {
-          // Debug log
-          console.log("Fetching product for productId:", item.productId);
-          const resProduct = await axios.get(`http://localhost:5001/api/products/${item.productId}`);
-          productName = resProduct.data.name;
-          productPrice = resProduct.data.price;
-        } catch (err) {
-          console.error('Order item fetch error:', err.message);
+      normalizedItems.map(async (item) => {
+        let productName = item.productName || "Unknown";
+        let productPrice = item.productPrice || 0;
+
+        // Only fetch from product service if not provided by frontend
+        if (!item.productName || !item.productPrice) {
+          try {
+            const resProduct = await axios.get(`http://localhost:4000/api/products/${item.productId}`);
+            if (resProduct.status === 200 && resProduct.data?.name) {
+              productName = resProduct.data.name;
+              productPrice = resProduct.data.price;
+            }
+          } catch (err) {
+            console.error(`Failed to fetch product: ${item.productId}`, err.message);
+          }
         }
+
         return {
           productId: item.productId,
           productName,
           productPrice,
-          quantity: item.quantity,
+          quantity: item.quantity
         };
       })
     );
@@ -40,15 +62,17 @@ exports.createOrder = async (req, res) => {
       total,
       status,
       customer,
+      createdAt: new Date()
     });
 
     await order.save();
     res.status(201).json(order);
   } catch (err) {
-    console.error('Order creation error:', err); // Only send response here
-    res.status(400).json({ error: err.message });
+    console.error('Order creation error:', err);
+    res.status(500).json({ error: err.message });
   }
 };
+
 
 exports.getOrders = async (req, res) => {
   try {
