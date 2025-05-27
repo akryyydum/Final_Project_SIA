@@ -68,13 +68,8 @@
 
 .apple-featured-row {
   display: flex;
-  gap: 32px;
-  justify-content: center;
-  flex-wrap: wrap;
-  width: 100%;
-  max-width: 1200px;
-  box-sizing: border-box;
-  overflow-x: auto;
+  gap: 1rem;
+  margin-top: 0.5rem;
 }
 
 .apple-featured-card {
