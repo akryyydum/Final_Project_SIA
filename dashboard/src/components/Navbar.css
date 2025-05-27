@@ -4,7 +4,7 @@
   left: 0;
   right: 0;
   height: 64px;
-    z-index: 1000;
+  z-index: 1000;
   padding: 0 40px;
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: saturate(180%) blur(20px);
@@ -60,7 +60,6 @@
   transition: all 0.3s ease;
 }
 
-
 .nav-menu .ant-menu-item {
   margin: 0 12px;
   transition: all 0.3s ease;
@@ -84,9 +83,67 @@
   align-items: center;
   pointer-events: auto;
 }
+
+/* Cart menu item base styles */
 .cart-menu-item {
   white-space: nowrap; /* keep icon and badge on one line */
   z-index: 10100; /* above other menu items */
+}
+
+/* Fix layout shifting on hover for cart menu link */
+.cart-menu-item a {
+  display: flex !important;
+  align-items: center;
+  position: relative;
+  padding: 0 4px; /* fixed horizontal padding */
+  transition: color 0.3s ease;
+  border: 1px solid transparent; /* keep border space */
+  box-sizing: border-box;
+}
+
+/* Hover styles without layout shift */
+.cart-menu-item a:hover,
+.cart-menu-item a:focus {
+  color: #0071e3;
+  border-color: transparent; /* no border size change */
+  cursor: pointer;
+}
+
+.cart-menu-item .ant-badge {
+  line-height: 1;
+  display: flex;
+  align-items: center;
+}
+
+.cart-menu-item .anticon {
+  font-size: 18px;
+  line-height: 1;
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+.cart-menu-item .ant-badge-count {
+  font-size: 10px;
+  height: 16px;
+  min-width: 16px;
+  padding: 0 4px;
+  background-color: #ff4d4f;
+  box-shadow: 0 0 0 1px #fff;
+  border: 1px solid transparent; /* prevent size changes */
+  box-sizing: border-box;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Subtle color change on hover */
+.cart-menu-item a:hover .ant-badge-count {
+  background-color: #d9363e;
+}
+
+/* Scale badge down when collapsed */
+.apple-header.collapsed .cart-menu-item .ant-badge-count {
+  transform: scale(0.9);
 }
 
 /* Hide only the "Cart" text label on collapse */
@@ -99,7 +156,6 @@
   color: #0071e3;
   border-bottom: 2px solid #0071e3;
 }
-
 
 .user-info {
   margin-right: 20px;
