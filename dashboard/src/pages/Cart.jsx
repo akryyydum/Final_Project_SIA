@@ -34,7 +34,6 @@ const Cart = () => {
     0
   );
 
-  // New confirm remove function
   const showConfirmRemove = (id) => {
     confirm({
       title: 'Are you sure you want to remove this item from your cart?',
@@ -45,7 +44,6 @@ const Cart = () => {
         removeFromCart(id);
       },
       onCancel() {
-        // No action needed on cancel
       },
     });
   };
