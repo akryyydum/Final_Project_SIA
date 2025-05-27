@@ -3,7 +3,8 @@ const amqp = require('amqplib');
 let channel;
 
 async function connect() {
-  const connection = await amqp.connect('amqp://rabbitmq');
+  // Use Docker service name for RabbitMQ connection
+  const connection = await amqp.connect('amqp://guest:guest@order-rabbitmq:5672');
   channel = await connection.createChannel();
   return channel;
 }
