@@ -3,27 +3,48 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 56px;
+  height: 64px;
   padding: 0 40px;
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: saturate(180%) blur(20px);
-  box-shadow: 0 1px 8px rgb(0 0 0 / 0.1);
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   display: flex;
   align-items: center;
-}
-.logo-img {
-  height: 36px;
-  object-fit: contain;
-  margin-right: 12px;
+  transition: all 0.3s ease;
 }
 
-.logo {
+.apple-header.collapsed {
+  height: 40px;
+  padding: 0 20px;
+}
+
+.apple-header .logo {
+  display: flex;
+  align-items: center;
+  margin-right: 40px;
+  user-select: none;
+}
+
+.logo-img {
+  height: 32px;
+  object-fit: contain;
+  margin-right: 8px;
+  transition: all 0.3s ease;
+}
+
+.logo-text {
   font-family: 'SF Pro Display', 'Poppins', Arial, sans-serif;
   font-weight: 900;
   color: #000;
-  margin-right: 48px;
-  user-select: none;
+  margin: 0;
+  transition: opacity 0.3s ease;
+}
+
+.apple-header.collapsed .logo-text {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
 }
 
 .nav-menu {
@@ -32,19 +53,23 @@
   font-size: 14px;
   flex-grow: 1;
   background: transparent !important;
+  transition: all 0.3s ease;
 }
 
 .nav-menu .ant-menu-item {
-  margin: 0 16px;
-  border-bottom: none !important;
-  padding: 0 !important;
-  transition: color 0.3s ease;
+  margin: 0 12px;
+  transition: all 0.3s ease;
 }
 
 .nav-menu .ant-menu-item a {
   color: #000;
   font-weight: 600;
   user-select: none;
+  transition: all 0.3s ease;
+}
+
+.apple-header.collapsed .ant-menu-item a {
+  display: none;
 }
 
 .nav-menu .ant-menu-item:hover,
@@ -54,11 +79,16 @@
 }
 
 .user-info {
-  margin-right: 24px;
+  margin-right: 20px;
   font-weight: 600;
   color: #555;
-  user-select: none;
-  max-width: 140px;
+  transition: opacity 0.3s ease;
+}
+
+.apple-header.collapsed .user-info {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
 }
 
 .profile-btn {
@@ -83,6 +113,10 @@
 
   .nav-menu,
   .user-info {
+    display: none !important;
+  }
+
+  .apple-header.collapsed .logo-text {
     display: none;
   }
 }

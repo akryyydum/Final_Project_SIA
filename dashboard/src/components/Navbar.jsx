@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layout, Menu, Dropdown, Typography, Button } from 'antd';
 import {
   HomeOutlined,
@@ -19,6 +19,8 @@ const { Header } = Layout;
 const Navbar = () => {
   const { isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
+  const [collapsed, setCollapsed] = useState(false);
+  const [menuVisible, setMenuVisible] = useState(false);
 
   let role = null, name = null;
   try {
@@ -29,7 +31,13 @@ const Navbar = () => {
     }
   } catch { }
 
-  const [menuVisible, setMenuVisible] = useState(false);
+  useEffect(() => {
+    const handleScroll = () => {
+      setCollapsed(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const profileMenu = (
     <Menu onClick={({ key }) => {
@@ -46,15 +54,17 @@ const Navbar = () => {
   );
 
   return (
-    <Header className="apple-header">
+    <Header
+      className={`apple-header ${collapsed ? 'collapsed' : ''}`}
+      onMouseEnter={() => setCollapsed(false)}
+      onMouseLeave={() => setCollapsed(true)}
+    >
       <div className="logo" onClick={() => navigate('/')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
         <img src="/aethertech-icon.png" alt="AetherTech Logo" className="logo-img" />
-        <Typography.Title level={3} style={{ margin: 0, fontWeight: 900 }}>AetherTech</Typography.Title>
+        <Typography.Title level={3} className="logo-text">AetherTech</Typography.Title>
       </div>
 
-
-
-      <Menu mode="horizontal" theme="light" selectable={false} className="nav-menu" style={{ flex: 1 }}>
+      <Menu mode="horizontal" theme="light" selectable={false} className="nav-menu">
         {isAuthenticated && <Menu.Item key="home" icon={<HomeOutlined />}><Link to="/">Home</Link></Menu.Item>}
         {isAuthenticated && role === 'customer' && <>
           <Menu.Item key="products" icon={<ShopOutlined />}><Link to="/products">Products</Link></Menu.Item>
@@ -67,7 +77,7 @@ const Navbar = () => {
         </>}
       </Menu>
 
-      {isAuthenticated && <Typography.Text type="secondary" className="user-info" ellipsis>{name} ({role})</Typography.Text>}
+      {isAuthenticated && <Typography.Text type="secondary" className="user-info">{name} ({role})</Typography.Text>}
 
       <Dropdown overlay={profileMenu} trigger={['click']} onVisibleChange={setMenuVisible} visible={menuVisible}>
         <Button shape="circle" icon={<UserOutlined />} size="large" className="profile-btn" aria-label="User menu" />

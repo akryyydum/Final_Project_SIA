@@ -55,15 +55,6 @@ const Products = () => {
 
   return (
     <Layout className="app-layout">
-      <Header className="header">
-        <div className="logo">
-          <img src="/logo.png" alt="Logo" />
-        </div>
-        <Badge count={3}>
-          <ShoppingCartOutlined className="cart-icon" />
-        </Badge>
-      </Header>
-
       <div className="search-bar-container">
         <Search
           placeholder="Search gadgets..."
