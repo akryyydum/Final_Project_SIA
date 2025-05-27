@@ -51,12 +51,8 @@ const CheckoutList = () => {
               {order.items.map((item, i) => (
                 <ListItem key={i} divider>
                   <ListItemText
-                    primary={`${item.productId?.name || "Unknown"} x${
-                      item.quantity
-                    }`}
-                    secondary={`$${
-                      item.productId?.price?.toFixed(2) || 0
-                    } each`}
+                    primary={`${item.productName || "Unknown"} x${item.quantity}`}
+                    secondary={`$${item.productPrice?.toFixed(2) || 0} each`}
                   />
                 </ListItem>
               ))}
