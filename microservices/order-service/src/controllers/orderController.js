@@ -6,16 +6,24 @@ exports.createOrder = async (req, res) => {
   try {
     const { userId, items, total, status, customer } = req.body;
 
+    // Check for missing productId in any item
+    const invalidItem = items.find(item => !item.productId);
+    if (invalidItem) {
+      return res.status(400).json({ error: "Each order item must have a valid productId." });
+    }
+
     const itemsWithNames = await Promise.all(
       items.map(async (item) => {
         let productName = "Unknown";
         let productPrice = 0;
         try {
+          // Debug log
+          console.log("Fetching product for productId:", item.productId);
           const resProduct = await axios.get(`http://localhost:5001/api/products/${item.productId}`);
           productName = resProduct.data.name;
           productPrice = resProduct.data.price;
         } catch (err) {
-          console.error('Order item fetch error:', err.message); // Just log, don't send response here!
+          console.error('Order item fetch error:', err.message);
         }
         return {
           productId: item.productId,

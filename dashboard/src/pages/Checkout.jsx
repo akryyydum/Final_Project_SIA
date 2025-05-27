@@ -30,6 +30,15 @@ const Checkout = () => {
         quantity: item.quantity || 1
       }));
 
+      // Log for debugging
+      console.log("Order items to send:", items);
+
+      // Check for missing productId
+      if (items.some(item => !item.productId)) {
+        setError('One or more cart items are missing a product ID. Please refresh your cart.');
+        return;
+      }
+
       await axios.post('http://localhost:5002/api/orders', {
         userId: user?.userId,
         items,
