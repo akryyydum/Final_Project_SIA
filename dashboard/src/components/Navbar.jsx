@@ -34,7 +34,7 @@ const Navbar = () => {
       role = payload.role;
       name = payload.name;
     }
-  } catch {}
+  } catch { }
 
   useEffect(() => {
     const handleScroll = () => {
@@ -95,41 +95,16 @@ const Navbar = () => {
       </div>
 
       <Menu mode="horizontal" theme="light" selectable={false} className="nav-menu">
-        {isAuthenticated && (
-          <Menu.Item key="home" icon={<HomeOutlined />}>
-            <Link to="/">Home</Link>
-          </Menu.Item>
-        )}
-        {isAuthenticated && role === "customer" && (
-          <>
-            <Menu.Item key="products" icon={<ShopOutlined />}>
-              <Link to="/products">Products</Link>
-            </Menu.Item>
-            <Menu.Item key="cart" className="cart-menu-item">
-              <Link to="/cart">
-                <Badge count={cartCount} offset={[5, 0]} size="small">
-                  <ShoppingCartOutlined style={{ fontSize: "16px" }} />
-                </Badge>
-                <span className="cart-text" style={{ marginLeft: 8 }}>
-                  Cart
-                </span>
-              </Link>
-            </Menu.Item>
-          </>
-        )}
-        {isAuthenticated && role === "admin" && (
-          <>
-            <Menu.Item key="users" icon={<TeamOutlined />}>
-              <Link to="/users">Users</Link>
-            </Menu.Item>
-            <Menu.Item key="add-product" icon={<PlusSquareOutlined />}>
-              <Link to="/admin/add-product">Add Product</Link>
-            </Menu.Item>
-            <Menu.Item key="orders" icon={<ShoppingCartOutlined />}>
-              <Link to="/admin/orders">Orders</Link>
-            </Menu.Item>
-          </>
-        )}
+        {isAuthenticated && <Menu.Item key="home" icon={<HomeOutlined />}><Link to="/">Home</Link></Menu.Item>}
+        {isAuthenticated && role === 'customer' && <>
+          <Menu.Item key="products" icon={<ShopOutlined />}><Link to="/products">Products</Link></Menu.Item>
+          <Menu.Item key="cart" icon={<ShoppingCartOutlined />}><Link to="/cart">Cart</Link></Menu.Item>
+        </>}
+        {isAuthenticated && role === 'admin' && <>
+          <Menu.Item key="users" icon={<TeamOutlined />}><Link to="/users">Users</Link></Menu.Item>
+          <Menu.Item key="add-product" icon={<PlusSquareOutlined />}><Link to="/admin/add-product">Add Product</Link></Menu.Item>
+          <Menu.Item key="orders" icon={<ShoppingCartOutlined />}><Link to="/checkout-list">Orders</Link></Menu.Item>
+        </>}
       </Menu>
 
       {isAuthenticated && (
