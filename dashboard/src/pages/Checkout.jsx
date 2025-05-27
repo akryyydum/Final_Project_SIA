@@ -142,32 +142,27 @@ const Checkout = () => {
         </Col>
 
         {/* Order Summary */}
-        <Grid item xs={12} md={6}>
-          <Typography variant="h6" gutterBottom>
-            Order Summary
-          </Typography>
-
-          <Card>
-            <CardContent>
-              <List>
-                {cartItems.map((item, index) => (
-                  <ListItem key={item.productId || item._id || index} divider>
-                    <ListItemText
-                      primary={`${item.name} x${item.quantity}`}
-                      secondary={`$${item.price?.toFixed(2) || 0} each`}
-                    />
-                    <Typography variant="body2">
-                      ${(item.price * (item.quantity || 1)).toFixed(2)}
-                    </Typography>
-                  </ListItem>
-                ))}
-              </List>
-              <Divider sx={{ my: 2 }} />
-              <Box display="flex" justifyContent="space-between">
-                <Typography variant="subtitle1">Total</Typography>
-                <Typography variant="subtitle1">${total.toFixed(2)}</Typography>
-              </Box>
-            </CardContent>
+        <Col xs={24} md={12}>
+          <Title level={4}>Order Summary</Title>
+          <Card className="summary-card">
+            <List
+              itemLayout="horizontal"
+              dataSource={cartItems}
+              renderItem={(item) => (
+                <List.Item>
+                  <List.Item.Meta
+                    title={`${item.name} x${item.quantity}`}
+                    description={`$${item.price?.toFixed(2)} each`}
+                  />
+                  <div>${(item.price * (item.quantity || 1)).toFixed(2)}</div>
+                </List.Item>
+              )}
+            />
+            <Divider />
+            <div className="total-line">
+              <span>Total:</span>
+              <strong>${total.toFixed(2)}</strong>
+            </div>
           </Card>
         </Col>
       </Row>
