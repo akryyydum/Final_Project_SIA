@@ -17,6 +17,8 @@ async function startAdminConsumer() {
         
         if (data.type === 'NEW_ORDER' && data.to === 'admin') {
           console.log('[📦] New order received by admin:', data.order);
+          // Add this for clarity
+          console.log('[🔔] Admin notified for order:', data.order._id);
         }
 
         channel.ack(msg);

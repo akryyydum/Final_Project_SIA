@@ -73,7 +73,6 @@ exports.createOrder = async (req, res) => {
       const channel = await connect();
       const queue = 'order_notifications';
       await channel.assertQueue(queue, { durable: false });
-      // Message includes order and a role field for clarity
       channel.sendToQueue(queue, Buffer.from(JSON.stringify({
         type: 'NEW_ORDER',
         order,
@@ -81,6 +80,8 @@ exports.createOrder = async (req, res) => {
         to: 'admin'
       })));
       console.log('Order notification sent to RabbitMQ queue:', queue); // <-- add this line
+      // Add this for clarity
+      console.log('Admin should receive notification for new order:', order._id);
     } catch (err) {
       console.error('Failed to send order notification to RabbitMQ:', err.message);
     }
