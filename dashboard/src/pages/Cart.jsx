@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import {
@@ -26,7 +26,22 @@ const Cart = () => {
   const navigate = useNavigate();
   const { cartItems, increaseQty, decreaseQty, removeFromCart } = useCart();
 
-  const total = cartItems.reduce(
+  // Track selected items by their id
+  const [selectedIds, setSelectedIds] = useState(cartItems.map(item => item.productId || item._id));
+
+  // Update selectedIds if cartItems change (e.g., after removing an item)
+  React.useEffect(() => {
+    setSelectedIds(ids => ids.filter(id => cartItems.some(item => (item.productId || item._id) === id)));
+  }, [cartItems]);
+
+  const handleSelect = (id, checked) => {
+    setSelectedIds(prev =>
+      checked ? [...prev, id] : prev.filter(selId => selId !== id)
+    );
+  };
+
+  const selectedItems = cartItems.filter(item => selectedIds.includes(item.productId || item._id));
+  const total = selectedItems.reduce(
     (sum, item) =>
       sum +
       (typeof item.price === 'number' ? item.price : 0) *
@@ -58,65 +73,72 @@ const Cart = () => {
       ) : (
         <>
           <Row gutter={[24, 24]} justify="center">
-            {cartItems.map((item, index) => (
-              <Col xs={24} md={20} key={item.productId || item._id || index}>
-                <Card className="cart-item" bordered={false}>
-                  <div className="cart-item-box">
-                    <div className="cart-item-image-container">
-                      <Image
-                        src={item.imageUrl}
-                        alt={item.name}
-                        className="cart-item-image"
-                        preview={false}
+            {cartItems.map((item, index) => {
+              const id = item.productId || item._id || index;
+              return (
+                <Col xs={24} md={20} key={id}>
+                  <Card className="cart-item" bordered={false}>
+                    <div className="cart-item-box">
+                      {/* Checkbox for selection */}
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.includes(id)}
+                        onChange={e => handleSelect(id, e.target.checked)}
+                        style={{ marginRight: 16, marginTop: 32 }}
+                        aria-label={`Select ${item.name} for checkout`}
                       />
-                    </div>
-
-                    <div className="cart-item-details">
-                      <Title level={5}>{item.name}</Title>
-                      <Text strong>₱{Number(item.price).toLocaleString()}</Text>
-                      <p className="cart-item-description">{item.description}</p>
-
-                      <div className="cart-qty-actions">
-                        <Space className="qty-buttons">
+                      <div className="cart-item-image-container">
+                        <Image
+                          src={item.imageUrl}
+                          alt={item.name}
+                          className="cart-item-image"
+                          preview={false}
+                        />
+                      </div>
+                      <div className="cart-item-details">
+                        <Title level={5}>{item.name}</Title>
+                        <Text strong>₱{Number(item.price).toLocaleString()}</Text>
+                        <p className="cart-item-description">{item.description}</p>
+                        <div className="cart-qty-actions">
+                          <Space className="qty-buttons">
+                            <Button
+                              icon={<MinusOutlined />}
+                              size="small"
+                              shape="circle"
+                              onClick={() =>
+                                decreaseQty(item.productId || item._id)
+                              }
+                              disabled={item.quantity <= 1}
+                            />
+                            <Text>{item.quantity}</Text>
+                            <Button
+                              icon={<PlusOutlined />}
+                              size="small"
+                              shape="circle"
+                              onClick={() =>
+                                increaseQty(item.productId || item._id)
+                              }
+                            />
+                          </Space>
                           <Button
-                            icon={<MinusOutlined />}
-                            size="small"
-                            shape="circle"
-                            onClick={() =>
-                              decreaseQty(item.productId || item._id)
-                            }
-                            disabled={item.quantity <= 1}
-                          />
-                          <Text>{item.quantity}</Text>
-                          <Button
-                            icon={<PlusOutlined />}
-                            size="small"
-                            shape="circle"
-                            onClick={() =>
-                              increaseQty(item.productId || item._id)
-                            }
-                          />
-                        </Space>
-
-<Button
-  danger
-  type="text"
-  icon={<DeleteOutlined />}
-  onClick={() => {
-    if (window.confirm('Are you sure you want to remove this item from your cart?')) {
-      removeFromCart(item.productId || item._id);
-    }
-  }}
->
-  Remove
-</Button>
-
+                            danger
+                            type="text"
+                            icon={<DeleteOutlined />}
+                            onClick={() => {
+                              if (window.confirm('Are you sure you want to remove this item from your cart?')) {
+                                removeFromCart(item.productId || item._id);
+                              }
+                            }}
+                          >
+                            Remove
+                          </Button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </Card>
-              </Col>
-            ))}
+                  </Card>
+                </Col>
+              );
+            })}
           </Row>
 
           <Divider className="cart-divider" />
@@ -127,7 +149,8 @@ const Cart = () => {
               type="primary"
               className="checkout-button"
               size="large"
-              onClick={() => navigate('/checkout')}
+              disabled={selectedItems.length === 0}
+              onClick={() => navigate('/checkout', { state: { selectedItems } })}
             >
               Proceed to Checkout
             </Button>

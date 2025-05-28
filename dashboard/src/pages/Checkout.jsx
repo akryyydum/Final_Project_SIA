@@ -3,6 +3,7 @@ import { Form, Input, Button, Row, Col, Typography, Alert, Card, List, Divider, 
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
+import { useLocation } from 'react-router-dom';
 import './Checkout.css';
 
 const { Title } = Typography;
@@ -40,8 +41,14 @@ const Checkout = () => {
 
   const { cartItems, clearCart } = useCart();
   const { user } = useAuth();
+  const location = useLocation();
 
-  const total = cartItems.reduce(
+  // Use selectedItems from navigation state if present, otherwise all cartItems
+  const selectedItems = location.state?.selectedItems && location.state.selectedItems.length > 0
+    ? location.state.selectedItems
+    : cartItems;
+
+  const total = selectedItems.reduce(
     (sum, item) => sum + (item.price * (item.quantity || 1)),
     0
   );
@@ -71,7 +78,8 @@ const Checkout = () => {
     try {
       console.log("cartItems:", cartItems);
 
-      const items = cartItems.map(item => {
+      // Use selectedItems instead of cartItems
+      const items = selectedItems.map(item => {
         const productId = item.productId ?? item._id ?? null;
 
         if (!productId) {
@@ -297,7 +305,7 @@ const Checkout = () => {
           <Card className="summary-card">
             <List
               itemLayout="horizontal"
-              dataSource={cartItems}
+              dataSource={selectedItems}
               renderItem={(item) => (
                 <List.Item>
                   <List.Item.Meta
