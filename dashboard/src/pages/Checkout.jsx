@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Button, Row, Col, Typography, Alert, Card, List, Divider, Select } from 'antd';
+import { Form, Input, Button, Row, Col, Typography, Alert, Card, List, Divider, Select, Badge, Spin } from 'antd';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
@@ -35,6 +35,8 @@ const Checkout = () => {
   const [success, setSuccess] = useState('');
   const [selectedCountry, setSelectedCountry] = useState(null);
   const [selectedState, setSelectedState] = useState(null);
+  const [customerOrders, setCustomerOrders] = useState([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
 
   const { cartItems, clearCart } = useCart();
   const { user } = useAuth();
@@ -115,6 +117,27 @@ const Checkout = () => {
       setSuccess('');
     }
   };
+
+  useEffect(() => {
+    // Fetch customer's orders if logged in
+    const fetchCustomerOrders = async () => {
+      if (!user?.userId) return;
+      setOrdersLoading(true);
+      try {
+        const res = await axios.get("http://localhost:5002/api/orders", {
+          headers: { Authorization: `Bearer ${user.token}` },
+        });
+        // Filter only orders for this user
+        const myOrders = res.data.filter(order => order.userId === user.userId);
+        setCustomerOrders(myOrders);
+      } catch (err) {
+        setCustomerOrders([]);
+      }
+      setOrdersLoading(false);
+    };
+    fetchCustomerOrders();
+    // eslint-disable-next-line
+  }, [user, success]); // refetch on new order
 
   return (
     <div className="checkout-container">
@@ -291,6 +314,53 @@ const Checkout = () => {
               <strong>${total.toFixed(2)}</strong>
             </div>
           </Card>
+
+          <Divider />
+          <Title level={4} style={{ marginTop: 32 }}>Your Orders</Title>
+          {ordersLoading ? (
+            <Spin />
+          ) : customerOrders.length === 0 ? (
+            <Alert type="info" message="You have not placed any orders yet." />
+          ) : (
+            <List
+              itemLayout="vertical"
+              dataSource={customerOrders}
+              renderItem={order => (
+                <Card key={order._id} style={{ marginBottom: 16 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <div>
+                      <Typography.Text strong>Order ID:</Typography.Text> {order._id}
+                    </div>
+                    <Badge
+                      status={
+                        order.status === "approved"
+                          ? "success"
+                          : order.status === "cancelled"
+                          ? "error"
+                          : "processing"
+                      }
+                      text={order.status?.charAt(0).toUpperCase() + order.status?.slice(1) || "Pending"}
+                    />
+                  </div>
+                  <Divider style={{ margin: "8px 0" }} />
+                  <div>
+                    <Typography.Text>Placed: {new Date(order.createdAt).toLocaleString()}</Typography.Text>
+                  </div>
+                  <List
+                    size="small"
+                    dataSource={order.items}
+                    renderItem={item => (
+                      <List.Item>
+                        {item.productName} x{item.quantity} — ${item.productPrice?.toFixed(2)}
+                      </List.Item>
+                    )}
+                  />
+                  <Divider style={{ margin: "8px 0" }} />
+                  <Typography.Text strong>Total: ${order.total?.toFixed(2)}</Typography.Text>
+                </Card>
+              )}
+            />
+          )}
         </Col>
       </Row>
     </div>

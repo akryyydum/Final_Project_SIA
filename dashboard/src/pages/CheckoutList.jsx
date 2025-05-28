@@ -9,6 +9,9 @@ import {
   Divider,
   Empty,
   message,
+  Button,
+  Spin,
+  Segmented,
 } from "antd";
 import { useAuth } from "../context/AuthContext";
 import "./CheckoutList.css";
@@ -19,26 +22,53 @@ const { Panel } = Collapse;
 
 const CheckoutList = () => {
   const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(false); // for button actions
+  const [filter, setFilter] = useState("all");
   const { token, user } = useAuth();
 
-  useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const res = await axios.get("http://localhost:5002/api/orders", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        // Optional: Sort by newest first
-        const sorted = res.data.sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-        );
-        setOrders(sorted);
-      } catch (error) {
-        message.error("Failed to fetch orders.");
-      }
-    };
+  const fetchOrders = async () => {
+    try {
+      const res = await axios.get("http://localhost:5002/api/orders", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const sorted = res.data.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+      setOrders(sorted);
+    } catch (error) {
+      message.error("Failed to fetch orders.");
+    }
+  };
 
+  useEffect(() => {
     if (user?.role === "admin") fetchOrders();
+    // eslint-disable-next-line
   }, [token, user]);
+
+  const handleUpdateOrder = async (orderId, newStatus) => {
+    setLoading(true);
+    try {
+      await axios.patch(
+        `http://localhost:5002/api/orders/${orderId}`,
+        { status: newStatus },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      message.success(`Order ${newStatus === "approved" ? "approved" : "cancelled"}!`);
+      fetchOrders();
+    } catch (error) {
+      message.error("Failed to update order.");
+    }
+    setLoading(false);
+  };
+
+  // Filter orders by status
+  const filteredOrders = orders.filter((order) => {
+    if (filter === "all") return true;
+    if (filter === "approved") return order.status === "approved";
+    if (filter === "cancelled") return order.status === "cancelled";
+    if (filter === "pending") return order.status === "pending";
+    return true;
+  });
 
   if (user?.role !== "admin") {
     return <Text type="danger">You are not authorized to view this page.</Text>;
@@ -49,15 +79,28 @@ const CheckoutList = () => {
       <Content>
         <Title level={2} className="checkout-title">All Orders</Title>
 
-        {orders.length === 0 ? (
+        {/* Sort/Filter Buttons */}
+        <Segmented
+          options={[
+            { label: "All", value: "all" },
+            { label: "Approved", value: "approved" },
+            { label: "Cancelled", value: "cancelled" },
+            { label: "Pending", value: "pending" },
+          ]}
+          value={filter}
+          onChange={setFilter}
+          style={{ marginBottom: 24 }}
+        />
+
+        {filteredOrders.length === 0 ? (
           <Empty description="No orders found." />
         ) : (
-          orders.map((order) => (
+          filteredOrders.map((order) => (
             <Card key={order._id} className="checkout-card">
               <div className="checkout-card-header">
                 <Title level={5}>Order by: {order.customer?.name}</Title>
                 <Badge
-                  status={order.status === "Delivered" ? "success" : "processing"}
+                  status={order.status === "Delivered" ? "success" : order.status === "approved" ? "success" : order.status === "cancelled" ? "error" : "processing"}
                   text={order.status || "Pending"}
                 />
               </div>
@@ -84,6 +127,26 @@ const CheckoutList = () => {
               <Text className="checkout-timestamp">
                 Placed: {new Date(order.createdAt).toLocaleString()}
               </Text>
+              {/* Approve/Cancel buttons for pending orders */}
+              {order.status === "pending" && (
+                <div style={{ marginTop: 16 }}>
+                  <Button
+                    type="primary"
+                    style={{ marginRight: 8 }}
+                    loading={loading}
+                    onClick={() => handleUpdateOrder(order._id, "approved")}
+                  >
+                    Approve
+                  </Button>
+                  <Button
+                    danger
+                    loading={loading}
+                    onClick={() => handleUpdateOrder(order._id, "cancelled")}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              )}
             </Card>
           ))
         )}

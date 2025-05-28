@@ -95,7 +95,9 @@ exports.createOrder = async (req, res) => {
 
 exports.getOrders = async (req, res) => {
   try {
-    const orders = await Order.find().populate('items.productId'); // <-- this populates product details
+    const orders = await Order.find()
+      .populate('items.productId')
+      .sort({ createdAt: -1 }); // Sort by newest first
     res.json(orders);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -122,3 +124,5 @@ exports.updateOrder = async (req, res) => {
 // Use 'localhost' when running locally, and 'mongo-order' when running in Docker.
 
 // Ensure you are not hardcoding mongo-order or order-rabbitmq here.
+
+// Make sure your routes file supports PATCH /api/orders/:id for status updates from the admin dashboard
