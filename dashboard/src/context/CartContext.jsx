@@ -1,12 +1,14 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 import { useAuth } from "./AuthContext";
+import { useProductContext } from "./ProductContext"; // <-- add this import
 
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
   const { token } = useAuth();
+  const { products } = useProductContext(); // <-- add this line
 
   const fetchCart = async () => {
     if (!token) return;
@@ -101,11 +103,20 @@ export const CartProvider = ({ children }) => {
 
   const increaseQty = (productId) => {
     setCartItems((prevItems) => {
-      const updatedItems = prevItems.map((item) =>
-        item.productId === productId || item._id === productId
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
-      );
+      const updatedItems = prevItems.map((item) => {
+        if (item.productId === productId || item._id === productId) {
+          // Find the product's stock
+          const product = products.find(
+            (p) => p._id === (item.productId || item._id)
+          );
+          const maxStock = product?.stock ?? Infinity;
+          // Only increase if not exceeding stock
+          if (item.quantity < maxStock) {
+            return { ...item, quantity: item.quantity + 1 };
+          }
+        }
+        return item;
+      });
       saveCart(updatedItems);
       return updatedItems;
     });

@@ -72,19 +72,19 @@ const Products = () => {
 
     let temp = [...products];
 
-    // Comment out filters for debugging
-    // if (searchTerm.trim())
-    //   temp = temp.filter((p) =>
-    //     p.name.toLowerCase().includes(searchTerm.toLowerCase())
-    //   );
+    // Enable filters
+    if (searchTerm.trim())
+      temp = temp.filter((p) =>
+        p.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
 
-    // temp = temp.filter(
-    //   (p) =>
-    //     p.price >= priceRange[0] &&
-    //     p.price <= priceRange[1] &&
-    //     (selectedCategories.length === 0 ||
-    //       (p.categories || []).some((cat) => selectedCategories.includes(cat)))
-    // );
+    temp = temp.filter(
+      (p) =>
+        p.price >= priceRange[0] &&
+        p.price <= priceRange[1] &&
+        (selectedCategories.length === 0 ||
+          (p.categories || []).some((cat) => selectedCategories.includes(cat)))
+    );
 
     setFiltered(temp);
     setCurrentPage(1);

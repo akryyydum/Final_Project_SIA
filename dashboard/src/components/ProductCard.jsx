@@ -92,11 +92,11 @@ const ProductCard = ({
         </p>
         {categories.length > 0 && (
           <div className="product-categories" aria-label="Product categories">
-            <strong>Category{categories.length > 1 ? "ies" : "y"}:</strong> {categories.join(", ")}
+            <strong>Categor{categories.length > 1 ? "ies" : "y"}:</strong> {categories.join(", ")}
           </div>
         )}
 
-        {isAdmin ? (
+        {isAdmin ? (  
           <div className="admin-actions" aria-label="Admin actions" onClick={e => e.stopPropagation()}>
             <Tooltip title="Edit Product">
               <Button

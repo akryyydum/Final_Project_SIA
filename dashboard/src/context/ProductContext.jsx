@@ -80,6 +80,24 @@ function ProductProvider({ children }) {
     }
   }
 
+  // Decrease stock for multiple products based on order items
+  async function decreaseStockByOrder(orderItems) {
+    try {
+      // orderItems: [{ productId, quantity }]
+      await Promise.all(
+        orderItems.map(async ({ productId, quantity }) => {
+          const product = products.find((p) => p._id === productId);
+          if (!product) return;
+          const newStock = Math.max((product.stock || 0) - quantity, 0);
+          await editProduct(productId, { ...product, stock: newStock });
+        })
+      );
+      await fetchProducts();
+    } catch (error) {
+      console.error("Failed to decrease stock by order", error);
+    }
+  }
+
   return (
     <ProductContext.Provider
       value={{
@@ -88,7 +106,8 @@ function ProductProvider({ children }) {
         editProduct,
         deleteProduct,
         reduceStock,
-        fetchProducts, // Expose fetchProducts if needed elsewhere
+        fetchProducts,
+        decreaseStockByOrder, // <-- expose this
       }}
     >
       {children}

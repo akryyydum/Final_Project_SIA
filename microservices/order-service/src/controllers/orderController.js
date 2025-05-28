@@ -38,7 +38,7 @@ exports.createOrder = async (req, res) => {
         // Only fetch from product service if not provided by frontend
         if (!item.productName || !item.productPrice) {
           try {
-            const resProduct = await axios.get(`http://localhost:4000/api/products/${item.productId}`);
+            const resProduct = await axios.get(`http://localhost:4000/api/products/${item.productId}`); // <-- changed 5000 to 4000
             if (resProduct.status === 200 && resProduct.data?.name) {
               productName = resProduct.data.name;
               productPrice = resProduct.data.price;
@@ -67,6 +67,21 @@ exports.createOrder = async (req, res) => {
     });
 
     await order.save();
+
+    // Decrease product stock for each item in the order (immediately after order is saved)
+    let stockErrors = [];
+    await Promise.all(order.items.map(async (item) => {
+      try {
+        await axios.patch(
+          `http://localhost:4000/api/products/${item.productId}/decrease-stock`,
+          { quantity: item.quantity }
+        );
+        console.log(`Decreased stock for product ${item.productId} by ${item.quantity}`);
+      } catch (err) {
+        stockErrors.push(item.productId);
+        console.error(`Failed to decrease stock for product ${item.productId}:`, err.response?.data || err.message);
+      }
+    }));
 
     // Send order notification to RabbitMQ (admins receive, customers send)
     try {
@@ -122,7 +137,7 @@ exports.updateOrder = async (req, res) => {
       await Promise.all(order.items.map(async (item) => {
         try {
           await axios.patch(
-            `http://localhost:4000/api/products/${item.productId}/decrease-stock`,
+            `http://localhost:4000/api/products/${item.productId}/decrease-stock`, // <-- changed 5000 to 4000
             { quantity: item.quantity }
           );
         } catch (err) {

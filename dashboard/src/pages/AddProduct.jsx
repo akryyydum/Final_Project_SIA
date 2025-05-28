@@ -1,11 +1,21 @@
 import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { ProductContext } from "../context/ProductContext";
-import { Form, Input, InputNumber, Upload, Button, message, Typography, Card } from "antd";
+import { Form, Input, InputNumber, Upload, Button, message, Typography, Card, Select } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import "../pages/AddProduct.css";
 
 const { Title } = Typography;
+
+const categoryOptions = [
+  "iPhone",
+  "iPad",
+  "MacBook",
+  "Apple Watch",
+  "AirPods",
+  "HomePod",
+  "Accessories",
+];
 
 const AddProduct = () => {
   const { addProduct } = useContext(ProductContext);
@@ -133,7 +143,13 @@ const AddProduct = () => {
 
 
           <Form.Item label="Category" name="category" rules={[{ required: true }]}>
-            <Input placeholder="e.g. Electronics" />
+            <Select placeholder="Select a category">
+              {categoryOptions.map((cat) => (
+                <Select.Option key={cat} value={cat}>
+                  {cat}
+                </Select.Option>
+              ))}
+            </Select>
           </Form.Item>
 
           <Form.Item label="Tags" name="tags">

@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Home from './pages/Home';
 import ProductDetails from './pages/ProductDetails';
 import Login from './pages/Login';
@@ -6,8 +6,8 @@ import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import Navbar from './components/Navbar';
 import SignUp from './pages/SignUp';
-import PrivateRoute from './components/PrivateRoute';
-import { AuthProvider } from './context/AuthContext';
+import PrivateRoute from './components/privateRoute';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { ProductProvider } from './context/ProductContext';
 import { CartProvider } from './context/CartContext';
 import Products from './pages/Products';
@@ -24,7 +24,15 @@ function App() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
-            <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
+            {/* Home route: redirect admin to /products */}
+            <Route
+              path="/"
+              element={
+                <PrivateRoute>
+                  <HomeRedirect />
+                </PrivateRoute>
+              }
+            />
             <Route path="/products" element={<PrivateRoute><Products /></PrivateRoute>} />
             <Route path="/product/:id" element={<PrivateRoute><ProductDetails /></PrivateRoute>} />
             <Route path="/cart" element={<PrivateRoute><Cart /></PrivateRoute>} />
@@ -37,6 +45,15 @@ function App() {
       </ProductProvider>
     </AuthProvider>
   );
+}
+
+// Add this component at the bottom of the file
+function HomeRedirect() {
+  const { user } = useAuth();
+  if (user?.role === "admin") {
+    return <Navigate to="/products" replace />;
+  }
+  return <Home />;
 }
 
 export default App;

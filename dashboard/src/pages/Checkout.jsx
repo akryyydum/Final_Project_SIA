@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Form, Input, Button, Row, Col, Typography, Alert, Card, List, Divider, Select, Badge, Spin } from 'antd';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { useProductContext } from '../context/ProductContext';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
 import './Checkout.css';
@@ -41,6 +42,7 @@ const Checkout = () => {
 
   const { cartItems, clearCart } = useCart();
   const { user } = useAuth();
+  const { decreaseStockByOrder } = useProductContext();
   const location = useLocation();
 
   // Use selectedItems from navigation state if present, otherwise all cartItems
@@ -112,6 +114,20 @@ const Checkout = () => {
           address: fullAddress
         }
       });
+
+      // Update frontend product stock immediately after order
+      await decreaseStockByOrder(items);
+
+      // Clear cart in backend after successful order
+      if (user?.token) {
+        try {
+          await axios.delete("http://localhost:5003/api/carts/me", {
+            headers: { Authorization: `Bearer ${user.token}` }
+          });
+        } catch (err) {
+          console.warn("Failed to clear cart in backend:", err?.response?.data || err.message);
+        }
+      }
 
       setSuccess('Order placed successfully!');
       setError('');
