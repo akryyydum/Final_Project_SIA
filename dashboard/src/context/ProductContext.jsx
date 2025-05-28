@@ -8,26 +8,28 @@ function ProductProvider({ children }) {
   const [products, setProducts] = useState([]);
   const { token } = useAuth();
 
-  useEffect(() => {
-    async function fetchProducts() {
-      try {
-        const res = await axios.get("http://localhost:4000/api/products");
-        setProducts(res.data);
-      } catch (err) {
-        console.error("Failed to fetch products", err);
-      }
+  // Make fetchProducts available to other functions
+  const fetchProducts = async () => {
+    try {
+      const res = await axios.get("http://localhost:4000/api/products");
+      setProducts(res.data);
+    } catch (err) {
+      console.error("Failed to fetch products", err);
     }
+  };
+
+  useEffect(() => {
     fetchProducts();
   }, []);
 
   async function addProduct(productData) {
     try {
-      const res = await axios.post(
+      await axios.post(
         "http://localhost:4000/api/products",
         productData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setProducts((prev) => [...prev, res.data]);
+      await fetchProducts(); // <-- Always fetch latest products after add
     } catch (error) {
       console.error("Failed to add product", error);
     }
@@ -86,6 +88,7 @@ function ProductProvider({ children }) {
         editProduct,
         deleteProduct,
         reduceStock,
+        fetchProducts, // Expose fetchProducts if needed elsewhere
       }}
     >
       {children}

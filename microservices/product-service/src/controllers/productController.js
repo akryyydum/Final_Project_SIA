@@ -22,3 +22,21 @@ exports.updateProduct = async (req, res) => {
     res.status(500).json({ message: "Update failed" });
   }
 };
+
+exports.decreaseStock = async (req, res) => {
+  try {
+    const { quantity } = req.body;
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ message: "Product not found" });
+
+    if (product.stock < quantity) {
+      return res.status(400).json({ message: "Not enough stock" });
+    }
+
+    product.stock -= quantity;
+    await product.save();
+    res.json(product);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to decrease stock" });
+  }
+};

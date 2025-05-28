@@ -114,6 +114,22 @@ exports.updateOrder = async (req, res) => {
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
+
+    // Decrease product stock if status changed to "approved"
+    if (req.body.status === "approved") {
+      // For each item in the order, call product-service to decrease stock
+      await Promise.all(order.items.map(async (item) => {
+        try {
+          await axios.patch(
+            `http://localhost:4000/api/products/${item.productId}/decrease-stock`,
+            { quantity: item.quantity }
+          );
+        } catch (err) {
+          console.error(`Failed to decrease stock for product ${item.productId}:`, err.message);
+        }
+      }));
+    }
+
     res.json(order);
   } catch (err) {
     res.status(500).json({ error: err.message });

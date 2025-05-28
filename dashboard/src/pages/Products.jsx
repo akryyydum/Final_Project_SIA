@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
-import { ProductContext } from "../context/ProductContext";
+import { useProductContext } from "../context/ProductContext";
 import { useAuth } from "../context/AuthContext";
 import {
   Layout,
@@ -43,7 +43,7 @@ const categoryOptions = [
 ];
 
 const Products = () => {
-  const { products, deleteProduct, editProduct } = useContext(ProductContext);
+  const { products, deleteProduct, editProduct } = useProductContext();
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
 
@@ -72,18 +72,19 @@ const Products = () => {
 
     let temp = [...products];
 
-    if (searchTerm.trim())
-      temp = temp.filter((p) =>
-        p.name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+    // Comment out filters for debugging
+    // if (searchTerm.trim())
+    //   temp = temp.filter((p) =>
+    //     p.name.toLowerCase().includes(searchTerm.toLowerCase())
+    //   );
 
-    temp = temp.filter(
-      (p) =>
-        p.price >= priceRange[0] &&
-        p.price <= priceRange[1] &&
-        (selectedCategories.length === 0 ||
-          (p.categories || []).some((cat) => selectedCategories.includes(cat)))
-    );
+    // temp = temp.filter(
+    //   (p) =>
+    //     p.price >= priceRange[0] &&
+    //     p.price <= priceRange[1] &&
+    //     (selectedCategories.length === 0 ||
+    //       (p.categories || []).some((cat) => selectedCategories.includes(cat)))
+    // );
 
     setFiltered(temp);
     setCurrentPage(1);

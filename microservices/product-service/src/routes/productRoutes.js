@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const {  requireAdmin } = require('../middleware/requireAdmin');
 const Product = require('../models/Product');
+const productController = require('../controllers/productController');
 
 // GET all products
 router.get("/", async (req, res) => {
@@ -77,5 +78,8 @@ router.delete('/:id', async (req, res) => {
     res.status(500).send(err.message);
   }
 });
+
+// Decrease stock
+router.patch('/:id/decrease-stock', productController.decreaseStock);
 
 module.exports = router;
